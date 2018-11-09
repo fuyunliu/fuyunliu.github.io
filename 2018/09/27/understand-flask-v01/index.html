@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+  <meta name="google-site-verification" content="SS2E0UHL1zZQ_5SgpFceJc7XUXJdiRcePlDZdH8yc_8" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Monaco:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.5.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.5.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.5.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.5.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.5.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="flask v0.1 是第一个发布的版本，单文件版，v0.4 是 flask 的最后一个单文件版本，文章中 flask 的源码有修改，因为依赖包有更新。">
+<meta name="keywords" content="Flask">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask v0.1 源码阅读">
+<meta property="og:url" content="https://fuyunliu.github.io/2018/09/27/understand-flask-v01/index.html">
+<meta property="og:site_name" content="听听那冷雨">
+<meta property="og:description" content="flask v0.1 是第一个发布的版本，单文件版，v0.4 是 flask 的最后一个单文件版本，文章中 flask 的源码有修改，因为依赖包有更新。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://fuyunliu.github.io/images/threading-local.png">
+<meta property="og:image" content="https://fuyunliu.github.io/images/flask-app-context.png">
+<meta property="og:updated_time" content="2018-10-19T15:58:11.250Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flask v0.1 源码阅读">
+<meta name="twitter:description" content="flask v0.1 是第一个发布的版本，单文件版，v0.4 是 flask 的最后一个单文件版本，文章中 flask 的源码有修改，因为依赖包有更新。">
+<meta name="twitter:image" content="https://fuyunliu.github.io/images/threading-local.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://fuyunliu.github.io/2018/09/27/understand-flask-v01/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Flask v0.1 源码阅读 | 听听那冷雨</title>
+  
+
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?a6d3be47a6e0733e363927e80967eb8a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">听听那冷雨</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">No one write here</p>
+      
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://fuyunliu.github.io/2018/09/27/understand-flask-v01/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="听听那冷雨">
+      <meta itemprop="description" content="记录一点东西">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听听那冷雨">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Flask v0.1 源码阅读
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-09-27 17:17:36" itemprop="dateCreated datePublished" datetime="2018-09-27T17:17:36+08:00">2018-09-27</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-10-19 23:58:11" itemprop="dateModified" datetime="2018-10-19T23:58:11+08:00">2018-10-19</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/笔记/" itemprop="url" rel="index"><span itemprop="name">笔记</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/09/27/understand-flask-v01/#comments" itemprop="discussionUrl">
+                
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2018/09/27/understand-flask-v01/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon"
+            >
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="https://github.com/pallets/flask/tree/0.1" target="_blank" rel="noopener">flask v0.1</a> 是第一个发布的版本，单文件版，v0.4 是 flask 的最后一个单文件版本，文章中 flask 的源码有修改，因为依赖包有更新。</p>
+<a id="more"></a>
+<!-- toc -->
+<h1 id="导包部分"><a href="#导包部分" class="headerlink" title="导包部分"></a>导包部分</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># python2.5 版本加入 with 语句，低于 2.5 需要引入，高于则忽略。</span></span><br><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> with_statement</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="comment"># 没有用到</span></span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> local</span><br><span class="line"></span><br><span class="line"><span class="comment"># jinja2 模板引擎</span></span><br><span class="line"><span class="keyword">from</span> jinja2 <span class="keyword">import</span> Environment, PackageLoader, FileSystemLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># Flask 的 Request 和 Response 继承自 werkzeug 的 Request 和 Response</span></span><br><span class="line"><span class="keyword">from</span> werkzeug.wrappers <span class="keyword">import</span> Request <span class="keyword">as</span> RequestBase, Response <span class="keyword">as</span> ResponseBase</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最后几行 _request_ctx_stack, current_app, request, session, g 用到。</span></span><br><span class="line"><span class="keyword">from</span> werkzeug.local <span class="keyword">import</span> LocalStack, LocalProxy</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用于测试请求上下文，在 Flask 类的方法 test_request_context 中调用，已失效。</span></span><br><span class="line"><span class="comment"># 最新版 test_request_context 方法调用 flask.testing 的 make_test_environ_builder，最终调用 werkzeug.test 的 EnvironBuilder。</span></span><br><span class="line"><span class="keyword">from</span> werkzeug <span class="keyword">import</span> create_environ</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> werkzeug.utils <span class="keyword">import</span> cached_property</span><br><span class="line"><span class="keyword">from</span> werkzeug.wsgi <span class="keyword">import</span> SharedDataMiddleware</span><br><span class="line"></span><br><span class="line"><span class="comment"># 路由</span></span><br><span class="line"><span class="keyword">from</span> werkzeug.routing <span class="keyword">import</span> Map, Rule</span><br><span class="line"></span><br><span class="line"><span class="comment"># 错误处理</span></span><br><span class="line"><span class="keyword">from</span> werkzeug.exceptions <span class="keyword">import</span> HTTPException, InternalServerError</span><br><span class="line"></span><br><span class="line"><span class="comment"># flask 自带的 session 用到</span></span><br><span class="line"><span class="keyword">from</span> werkzeug.contrib.securecookie <span class="keyword">import</span> SecureCookie</span><br><span class="line"></span><br><span class="line"><span class="comment"># 没有用到，作为对外接口</span></span><br><span class="line"><span class="keyword">from</span> werkzeug <span class="keyword">import</span> abort, redirect</span><br><span class="line"><span class="keyword">from</span> jinja2 <span class="keyword">import</span> Markup, escape</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用于获取应用程序根目录</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">import</span> pkg_resources</span><br><span class="line">    pkg_resources.resource_stream</span><br><span class="line"><span class="keyword">except</span> (ImportError, AttributeError):</span><br><span class="line">    pkg_resources = <span class="keyword">None</span></span><br></pre></td></tr></table></figure>
+<h1 id="Request-和-Response"><a href="#Request-和-Response" class="headerlink" title="Request 和 Response"></a>Request 和 Response</h1><p><code>flask</code> 的 <code>Request</code> 和 <code>Response</code> 继承自 <code>werkzeug</code> 的 <code>Request</code> 和 <code>Response</code>。</p>
+<p>如果你想要自定义 <code>Request</code> 和 <code>Response</code>，你可以继承这两个类，然后指定 <code>Flask</code> 的 <code>request_class</code> 和 <code>response_class</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Request</span><span class="params">(RequestBase)</span>:</span></span><br><span class="line">    <span class="string">"""请求类"""</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, environ)</span>:</span></span><br><span class="line">        RequestBase.__init__(self, environ)  <span class="comment"># WSGI 环境</span></span><br><span class="line">        self.endpoint = <span class="keyword">None</span>  <span class="comment"># 视图函数的键名</span></span><br><span class="line">        self.view_args = <span class="keyword">None</span>  <span class="comment"># 视图函数的参数</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Response</span><span class="params">(ResponseBase)</span>:</span></span><br><span class="line">    <span class="string">"""响应类"""</span></span><br><span class="line"></span><br><span class="line">    default_mimetype = <span class="string">'text/html'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_RequestGlobals</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_RequestContext</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""请求上下文"""</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, app, environ)</span>:</span></span><br><span class="line">        self.app = app</span><br><span class="line">        self.url_adapter = app.url_map.bind_to_environ(environ)</span><br><span class="line">        self.request = app.request_class(environ)</span><br><span class="line">        self.session = app.open_session(self.request)  <span class="comment"># 带上下文的 session</span></span><br><span class="line">        self.g = _RequestGlobals()  <span class="comment"># 带上下文的 g</span></span><br><span class="line">        self.flashes = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__enter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        _request_ctx_stack.push(self)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__exit__</span><span class="params">(self, exc_type, exc_value, tb)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> tb <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">or</span> <span class="keyword">not</span> self.app.debug:</span><br><span class="line">            _request_ctx_stack.pop()</span><br></pre></td></tr></table></figure>
+<h1 id="几个有用的函数"><a href="#几个有用的函数" class="headerlink" title="几个有用的函数"></a>几个有用的函数</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">url_for</span><span class="params">(endpoint, **values)</span>:</span></span><br><span class="line">    <span class="string">"""函数跳转</span></span><br><span class="line"><span class="string">    endpoint: Flask 类有个 view_functions 字典，存储的就是 endpoint 和 视图函数的映射关系，默认 endpoint 是视图函数的名字</span></span><br><span class="line"><span class="string">    values: 路由传过来的参数</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">return</span> _request_ctx_stack.top.url_adapter.build(endpoint, values)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">flash</span><span class="params">(message)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    消息闪现，存储在 session 中，是个列表</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    session[<span class="string">'_flashes'</span>] = (session.get(<span class="string">'_flashes'</span>, [])) + [message]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_flashed_messages</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    把 session 中存储的消息全部 pop 出来并返回</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    flashes = _request_ctx_stack.top.flashes</span><br><span class="line">    <span class="keyword">if</span> flashes <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">        _request_ctx_stack.top.flashes = flashes = \</span><br><span class="line">            session.pop(<span class="string">'_flashes'</span>, [])</span><br><span class="line">    <span class="keyword">return</span> flashes</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">render_template</span><span class="params">(template_name, **context)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    从文件渲染模板</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    current_app.update_template_context(context)</span><br><span class="line">    <span class="keyword">return</span> current_app.jinja_env.get_template(template_name).render(context)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">render_template_string</span><span class="params">(source, **context)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    从字符串渲染模板</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    current_app.update_template_context(context)</span><br><span class="line">    <span class="keyword">return</span> current_app.jinja_env.from_string(source).render(context)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_default_template_ctx_processor</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    模板处理，使得在所有模板中可以使用 request, session 和 g 三个全局变量</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    reqctx = _request_ctx_stack.top</span><br><span class="line">    <span class="keyword">return</span> dict(</span><br><span class="line">        request=reqctx.request,</span><br><span class="line">        session=reqctx.session,</span><br><span class="line">        g=reqctx.g</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_get_package_path</span><span class="params">(name)</span>:</span></span><br><span class="line">    <span class="string">"""根据名字获取模块的路径"""</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">return</span> os.path.abspath(os.path.dirname(sys.modules[name].__file__))</span><br><span class="line">    <span class="keyword">except</span> (KeyError, AttributeError):</span><br><span class="line">        <span class="keyword">return</span> os.getcwd()</span><br></pre></td></tr></table></figure>
+<h1 id="Flask-类"><a href="#Flask-类" class="headerlink" title="Flask 类"></a>Flask 类</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Flask</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Flask 类实现了一个 WSGI 应用，只要将包或者模块的名字传递给它</span></span><br><span class="line"><span class="string">    一旦创建的时候，它将首先注册视图函数、路由映射、模板配置等等几个重要的对象</span></span><br><span class="line"><span class="string">    传入包的名字是用于解决应用内部资源的引用，具体请查看 open_resource 函数</span></span><br><span class="line"><span class="string">    一般情况下，你只需要这样创建：</span></span><br><span class="line"><span class="string">        from flask import Flask</span></span><br><span class="line"><span class="string">        app = Flask(__name__)</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 请求类</span></span><br><span class="line">    request_class = Request</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 响应类</span></span><br><span class="line">    response_class = Response</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 静态文件路径，设置为 None 可以禁用</span></span><br><span class="line">    static_path = <span class="string">'/static'</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 密钥，用于 cookies 签名验证</span></span><br><span class="line">    secret_key = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 基于 cookie 的 session 的名字</span></span><br><span class="line">    session_cookie_name = <span class="string">'session'</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 默认会直接传给 jinja2 的 options 参数值</span></span><br><span class="line">    jinja_options = dict(</span><br><span class="line">        autoescape=<span class="keyword">True</span>,</span><br><span class="line">        extensions=[<span class="string">'jinja2.ext.autoescape'</span>, <span class="string">'jinja2.ext.with_'</span>]</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, package_name)</span>:</span></span><br><span class="line">        <span class="comment"># 调试模式开关，设置 True 以打开调试模式</span></span><br><span class="line">        <span class="comment"># 在调试模式下，应用程序出错会有特殊的错误页面以供调试</span></span><br><span class="line">        <span class="comment"># 并且服务会监控文件的变化，文件发生变化会重载服务</span></span><br><span class="line">        self.debug = <span class="keyword">False</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 包或者模块的名字，一旦设置好了就不要改动</span></span><br><span class="line">        self.package_name = package_name</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 应用程序顶级目录</span></span><br><span class="line">        self.root_path = _get_package_path(self.package_name)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 包含所有注册好的视图函数字典，键是函数的名字，也用于生成 URL</span></span><br><span class="line">        <span class="comment"># 值就是函数本身，可以用 route 装饰器注册一个函数</span></span><br><span class="line">        self.view_functions = &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 所有注册好的错误处理函数，键是错误代码，值是处理函数</span></span><br><span class="line">        <span class="comment"># 可以用 errorhandler 注册一个错误处理函数</span></span><br><span class="line">        self.error_handlers = &#123;&#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 预处理函数，每次请求之前会执行，用 before_request 装饰器注册</span></span><br><span class="line">        self.before_request_funcs = []</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 后处理函数，每次请求完成以后执行，函数会截获响应并且改变它</span></span><br><span class="line">        <span class="comment"># 用 after_request 装饰器注册</span></span><br><span class="line">        self.after_request_funcs = []</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 模板上下文处理器，默认有一个处理函数 _default_template_ctx_processor</span></span><br><span class="line">        <span class="comment"># 默认的函数功能是向模板上下文添加三个对象 request, session, g</span></span><br><span class="line">        <span class="comment"># 每个函数执行不需要参数，返回值为字典，用于填充模板上下文</span></span><br><span class="line">        self.template_context_processors = [_default_template_ctx_processor]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 路由映射，在 werkzeug.routing.Map</span></span><br><span class="line">        self.url_map = Map()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 架起一个静态资源服务，一般用于开发环境，生产环境用 nginx</span></span><br><span class="line">        <span class="keyword">if</span> self.static_path <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            self.url_map.add(Rule(self.static_path + <span class="string">'/&lt;filename&gt;'</span>,</span><br><span class="line">                                  build_only=<span class="keyword">True</span>, endpoint=<span class="string">'static'</span>))</span><br><span class="line">            <span class="keyword">if</span> pkg_resources <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">                target = (self.package_name, <span class="string">'static'</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                target = os.path.join(self.root_path, <span class="string">'static'</span>)</span><br><span class="line">            self.wsgi_app = SharedDataMiddleware(self.wsgi_app, &#123;</span><br><span class="line">                self.static_path: target</span><br><span class="line">            &#125;)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># jinja2 模板配置，包括模板目录和默认开启的功能</span></span><br><span class="line">        self.jinja_env = Environment(loader=self.create_jinja_loader(),</span><br><span class="line">                                     **self.jinja_options)</span><br><span class="line">        <span class="comment"># 这是两个模板能用到的函数</span></span><br><span class="line">        <span class="comment"># url_for 用于根据 endpoint 获取 URL</span></span><br><span class="line">        <span class="comment"># get_flashed_messages 用于获取消息闪现</span></span><br><span class="line">        self.jinja_env.globals.update(</span><br><span class="line">            url_for=url_for,</span><br><span class="line">            get_flashed_messages=get_flashed_messages</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create_jinja_loader</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        加载模板目录，默认目录为 templates</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">if</span> pkg_resources <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">return</span> FileSystemLoader(os.path.join(self.root_path, <span class="string">'templates'</span>))</span><br><span class="line">        <span class="keyword">return</span> PackageLoader(self.package_name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">update_template_context</span><span class="params">(self, context)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        为模板上下文注入几个常用的变量，比如 request, session, g</span></span><br><span class="line"><span class="string">        context 为填充模板上下文的字典</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        reqctx = _request_ctx_stack.top</span><br><span class="line">        <span class="keyword">for</span> func <span class="keyword">in</span> self.template_context_processors:</span><br><span class="line">            context.update(func())</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self, host=<span class="string">'localhost'</span>, port=<span class="number">5000</span>, **options)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        运行开发服务器</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">from</span> werkzeug <span class="keyword">import</span> run_simple</span><br><span class="line">        <span class="keyword">if</span> <span class="string">'debug'</span> <span class="keyword">in</span> options:</span><br><span class="line">            self.debug = options.pop(<span class="string">'debug'</span>)</span><br><span class="line">        options.setdefault(<span class="string">'use_reloader'</span>, self.debug)</span><br><span class="line">        options.setdefault(<span class="string">'use_debugger'</span>, self.debug)</span><br><span class="line">        <span class="keyword">return</span> run_simple(host, port, self, **options)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">test_client</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        为应用程序创建一个测试客户端</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">from</span> werkzeug <span class="keyword">import</span> Client</span><br><span class="line">        <span class="keyword">return</span> Client(self, self.response_class, use_cookies=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">open_resource</span><span class="params">(self, resource)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        动态加载模块</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">if</span> pkg_resources <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">return</span> open(os.path.join(self.root_path, resource), <span class="string">'rb'</span>)</span><br><span class="line">        <span class="keyword">return</span> pkg_resources.resource_stream(self.package_name, resource)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">open_session</span><span class="params">(self, request)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        创建一个 session，secret_key 必须设置</span></span><br><span class="line"><span class="string">        基于 werkzeug.contrib.securecookie.SecureCookie</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        key = self.secret_key</span><br><span class="line">        <span class="keyword">if</span> key <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">return</span> SecureCookie.load_cookie(request, self.session_cookie_name,</span><br><span class="line">                                            secret_key=key)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">save_session</span><span class="params">(self, session, response)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        保存 session</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">if</span> session <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            session.save_cookie(response, self.session_cookie_name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_url_rule</span><span class="params">(self, rule, endpoint, **options)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        创建 URL 和视图函数的映射规则，等同于 route 装饰器</span></span><br><span class="line"><span class="string">        只是 add_url_rule 并没有为视图函数注册一个 endpoint</span></span><br><span class="line"><span class="string">        这一步也就是向 view_functions 字典添加 endpoint: view_func 键值对</span></span><br><span class="line"><span class="string">        以下：</span></span><br><span class="line"><span class="string">            @app.route('/')</span></span><br><span class="line"><span class="string">            def index():</span></span><br><span class="line"><span class="string">                pass</span></span><br><span class="line"><span class="string">        等同于：</span></span><br><span class="line"><span class="string">            def index():</span></span><br><span class="line"><span class="string">                pass</span></span><br><span class="line"><span class="string">            app.add_url_rule('index', '/')</span></span><br><span class="line"><span class="string">            app.view_functions['index'] = index</span></span><br><span class="line"><span class="string">        options: 参数选项详见 werkzeug.routing.Rule</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        options[<span class="string">'endpoint'</span>] = endpoint</span><br><span class="line">        options.setdefault(<span class="string">'methods'</span>, (<span class="string">'GET'</span>,))</span><br><span class="line">        self.url_map.add(Rule(rule, **options))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">route</span><span class="params">(self, rule, **options)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        为给定的 URL 注册一个视图函数</span></span><br><span class="line"><span class="string">        用法：</span></span><br><span class="line"><span class="string">            @app.route('/')</span></span><br><span class="line"><span class="string">            def index():</span></span><br><span class="line"><span class="string">                return 'Hello World'</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        变量部分可以用尖括号(``/user/&lt;username&gt;``)指定，默认接受任何不带斜杆的字符串</span></span><br><span class="line"><span class="string">        变量也可以指定一个转换器，以指定类型的参数：</span></span><br><span class="line"><span class="string">        =========== ===========================================</span></span><br><span class="line"><span class="string">        int         整数</span></span><br><span class="line"><span class="string">        float       浮点数</span></span><br><span class="line"><span class="string">        path        路径</span></span><br><span class="line"><span class="string">        =========== ===========================================</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        值得注意的是 Flask 如何处理结尾的斜杆，核心思路是保证每个 URL 唯一：</span></span><br><span class="line"><span class="string">            1、如果配置了一个带结尾斜杆的 URL，用户请求不带结尾斜杆的这个 URL，则跳转到带结尾斜杆的页面。</span></span><br><span class="line"><span class="string">            2、如果配置了一个不带结尾斜杆的 URL，用户请求带结尾斜杆的这个 URL，则触发404错误。</span></span><br><span class="line"><span class="string">        这和 web 服务器处理静态资源 static 的逻辑是一样的</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        参数：</span></span><br><span class="line"><span class="string">        rule: URL 字符串</span></span><br><span class="line"><span class="string">        methods: 允许的请求方法，是个列表，默认只接受 GET 请求和隐式的 HEAD</span></span><br><span class="line"><span class="string">        subdomain: 指定子域名</span></span><br><span class="line"><span class="string">        strict_slashes: 上述对结尾斜杆处理的开关</span></span><br><span class="line"><span class="string">        options: 参数选项详见 `werkzeug.routing.Rule`</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">decorator</span><span class="params">(f)</span>:</span></span><br><span class="line">            self.add_url_rule(rule, f.__name__, **options)</span><br><span class="line">            self.view_functions[f.__name__] = f</span><br><span class="line">            <span class="keyword">return</span> f</span><br><span class="line">        <span class="keyword">return</span> decorator</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">errorhandler</span><span class="params">(self, code)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        注册一个错误码处理函数</span></span><br><span class="line"><span class="string">        用法：</span></span><br><span class="line"><span class="string">            @app.errorhandler(404)</span></span><br><span class="line"><span class="string">            def page_not_found():</span></span><br><span class="line"><span class="string">                return 'This page does not exist', 404</span></span><br><span class="line"><span class="string">        等同于：</span></span><br><span class="line"><span class="string">            def page_not_found():</span></span><br><span class="line"><span class="string">                return 'This page does not exist', 404</span></span><br><span class="line"><span class="string">            app.error_handlers[404] = page_not_found</span></span><br><span class="line"><span class="string">        参数：</span></span><br><span class="line"><span class="string">            code: 错误码</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">decorator</span><span class="params">(f)</span>:</span></span><br><span class="line">            self.error_handlers[code] = f</span><br><span class="line">            <span class="keyword">return</span> f</span><br><span class="line">        <span class="keyword">return</span> decorator</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">before_request</span><span class="params">(self, f)</span>:</span></span><br><span class="line">        <span class="string">"""注册一个预处理函数"""</span></span><br><span class="line">        self.before_request_funcs.append(f)</span><br><span class="line">        <span class="keyword">return</span> f</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">after_request</span><span class="params">(self, f)</span>:</span></span><br><span class="line">        <span class="string">"""注册一个后处理函数"""</span></span><br><span class="line">        self.after_request_funcs.append(f)</span><br><span class="line">        <span class="keyword">return</span> f</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">context_processor</span><span class="params">(self, f)</span>:</span></span><br><span class="line">        <span class="string">"""注册一个模板上下文处理函数"""</span></span><br><span class="line">        self.template_context_processors.append(f)</span><br><span class="line">        <span class="keyword">return</span> f</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">match_request</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        根据当前请求的路由去和url_map匹配，拿到 enpoint 和 view_args</span></span><br><span class="line"><span class="string">        endpoint: 端点，是 view_functions 中对应视图函数的key</span></span><br><span class="line"><span class="string">        view_args: 视图函数的参数</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        rv = _request_ctx_stack.top.url_adapter.match()</span><br><span class="line">        request.endpoint, request.view_args = rv</span><br><span class="line">        <span class="keyword">return</span> rv</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">dispatch_request</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        首先调用上面的 match_request 方法拿到 endpoint 和 view_args</span></span><br><span class="line"><span class="string">        根据 endpoint 可以从 view_functions 找到对应的视图函数</span></span><br><span class="line"><span class="string">        再传入视图函数的参数 view_args，并返回结果，这个结果只是函数的返回值</span></span><br><span class="line"><span class="string">        并没有包装成响应类 response_class，可以调用 make_response 方法生成响应</span></span><br><span class="line"><span class="string">        如果函数执行失败，则根据错误码调用对应的错误处理函数</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            endpoint, values = self.match_request()</span><br><span class="line">            <span class="keyword">return</span> self.view_functions[endpoint](**values)</span><br><span class="line">        <span class="keyword">except</span> HTTPException, e:</span><br><span class="line">            handler = self.error_handlers.get(e.code)</span><br><span class="line">            <span class="keyword">if</span> handler <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                <span class="keyword">return</span> e</span><br><span class="line">            <span class="keyword">return</span> handler(e)</span><br><span class="line">        <span class="keyword">except</span> Exception, e:</span><br><span class="line">            handler = self.error_handlers.get(<span class="number">500</span>)</span><br><span class="line">            <span class="keyword">if</span> self.debug <span class="keyword">or</span> handler <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                <span class="keyword">raise</span></span><br><span class="line">            <span class="keyword">return</span> handler(e)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">make_response</span><span class="params">(self, rv)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        将视图函数的返回值包装成一个真实的响应类 response_class</span></span><br><span class="line"><span class="string">        函数的返回值支持以下几种类型：</span></span><br><span class="line"><span class="string">        ======================= ===========================================</span></span><br><span class="line"><span class="string">        response_class:         响应类本身，原样返回</span></span><br><span class="line"><span class="string">        str:                    字符串，创建相应类并返回</span></span><br><span class="line"><span class="string">        unicode:                unicode 编码，utf-8编码后创建相应类并返回</span></span><br><span class="line"><span class="string">        tuple:                  元组，解包元组传入参数创建响应类并返回</span></span><br><span class="line"><span class="string">        a WSGI function:        WSGI 函数</span></span><br><span class="line"><span class="string">        ======================= ===========================================</span></span><br><span class="line"><span class="string">        参数：</span></span><br><span class="line"><span class="string">        rv: 视图函数的返回值</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">if</span> isinstance(rv, self.response_class):</span><br><span class="line">            <span class="keyword">return</span> rv</span><br><span class="line"></span><br><span class="line">        <span class="comment"># basestring 是 str 和 unicode 的超类，只支持 python2</span></span><br><span class="line">        <span class="keyword">if</span> isinstance(rv, basestring):</span><br><span class="line">            <span class="keyword">return</span> self.response_class(rv)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> isinstance(rv, tuple):</span><br><span class="line">            <span class="keyword">return</span> self.response_class(*rv)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> self.response_class.force_type(rv, request.environ)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">preprocess_request</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        在分发请求之前执行所有的预处理函数，如果预处理函数有返回值不为 None</span></span><br><span class="line"><span class="string">        则返回结果并中断其余的预处理</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">for</span> func <span class="keyword">in</span> self.before_request_funcs:</span><br><span class="line">            rv = func()</span><br><span class="line">            <span class="keyword">if</span> rv <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">                <span class="keyword">return</span> rv</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process_response</span><span class="params">(self, response)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        依次传入响应并执行所有的后处理函数，返回新的响应</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        session = _request_ctx_stack.top.session</span><br><span class="line">        <span class="keyword">if</span> session <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="comment"># 保存 `session`</span></span><br><span class="line">            self.save_session(session, response)</span><br><span class="line">        <span class="keyword">for</span> handler <span class="keyword">in</span> self.after_request_funcs:</span><br><span class="line">            response = handler(response)</span><br><span class="line">        <span class="keyword">return</span> response</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wsgi_app</span><span class="params">(self, environ, start_response)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        WSGI 应用，可以用中间件包装：</span></span><br><span class="line"><span class="string">            app.wsgi_app = MyMiddleware(app.wsgi_app)</span></span><br><span class="line"><span class="string">        参数：</span></span><br><span class="line"><span class="string">        environ: WSGI 环境，是一个字典，包含了所有请求的信息</span></span><br><span class="line"><span class="string">        start_response: 回调函数</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">with</span> self.request_context(environ):</span><br><span class="line">            rv = self.preprocess_request()</span><br><span class="line">            <span class="keyword">if</span> rv <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                rv = self.dispatch_request()</span><br><span class="line">            response = self.make_response(rv)</span><br><span class="line">            response = self.process_response(response)</span><br><span class="line">            <span class="keyword">return</span> response(environ, start_response)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">request_context</span><span class="params">(self, environ)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        通过给定的 WSGI 环境创建一个请求上下文，并把它绑定到当前上下文中</span></span><br><span class="line"><span class="string">        必须通过 with 语句使用，因为 request 对象只在请求上下文</span></span><br><span class="line"><span class="string">        也就是 with 语句块中起作用</span></span><br><span class="line"><span class="string">        用法如下：</span></span><br><span class="line"><span class="string">            with app.request_context(environ):</span></span><br><span class="line"><span class="string">                do_something_with(request)</span></span><br><span class="line"><span class="string">        参数：</span></span><br><span class="line"><span class="string">        environ: WSGI 环境</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">return</span> _RequestContext(self, environ)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">test_request_context</span><span class="params">(self, *args, **kwargs)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        测试请求上下文，参数详见 werkzeug.create_environ</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">return</span> self.request_context(create_environ(*args, **kwargs))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span><span class="params">(self, environ, start_response)</span>:</span></span><br><span class="line">        <span class="string">"""调用 wsgi_app 方法"""</span></span><br><span class="line">        <span class="keyword">return</span> self.wsgi_app(environ, start_response)</span><br></pre></td></tr></table></figure>
+<h1 id="全局变量"><a href="#全局变量" class="headerlink" title="全局变量"></a>全局变量</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">_request_ctx_stack = LocalStack()</span><br><span class="line">current_app = LocalProxy(<span class="keyword">lambda</span>: _request_ctx_stack.top.app)</span><br><span class="line">request = LocalProxy(<span class="keyword">lambda</span>: _request_ctx_stack.top.request)</span><br><span class="line">session = LocalProxy(<span class="keyword">lambda</span>: _request_ctx_stack.top.session)</span><br><span class="line">g = LocalProxy(<span class="keyword">lambda</span>: _request_ctx_stack.top.g)</span><br></pre></td></tr></table></figure>
+<h1 id="werkzeug-的-Local，LocalStack-和-LocalProxy"><a href="#werkzeug-的-Local，LocalStack-和-LocalProxy" class="headerlink" title="werkzeug 的 Local，LocalStack 和 LocalProxy"></a>werkzeug 的 Local，LocalStack 和 LocalProxy</h1><p><code>Flask</code> 中有两个上下文（<code>Context</code>）：</p>
+<pre><code>1. 应用上下文（`App Context`）
+2. 请求上下文（`Request Context`）
+</code></pre><p>上下文就是函数运行时所需要的外部变量，当我们运行一个简单的求和函数 <code>sum</code> 是不需要外部变量的，而像 <code>Flask</code> 中的视图函数运行需要知道当前的请求的路由、表单和请求方法等等一些信息。</p>
+<p><code>Django</code> 和 <code>Tornado</code> 把视图函数所需要的外部信息封装成一个对象 <code>Request</code>，并把这个对象当作参数传给视图函数，无论视图函数有没有用到，所以编写 <code>Django</code> 的视图函数会到处都见到一个 <code>request</code> 参数。</p>
+<p>而 <code>Flask</code> 则使用了类似 <code>Thread Local</code> 的对象，它可以隔离多线程/协程之间的状态，使得多线程/协程像操作一个全局变量一样操作各自的状态而互不影响，原理就是使用当前的线程ID作为命名空间，保存多份字典，每个线程只获取各自线程ID对应的字典。</p>
+<p><code>Flask</code> 并没有使用 <code>Python</code> 标准库的 <code>Thread Local</code>，而是用了 <code>werkzeug</code> 实现的 <code>Local</code>。</p>
+<p><code>Local</code> 和 <code>threading.local</code> 相似，但是 <code>Local</code> 在 <code>Greenlet</code> 可用的情况下优先使用 <code>getcurrent</code> 获取当前线程ID，用以支持 <code>Gevent</code> 调度。</p>
+<p><code>Local</code> 还有一个 <code>__release_local__</code> 方法，用以释放当前线程存储的状态信息。</p>
+<p><code>LocalStack</code> 是基于 <code>Local</code> 实现的栈结构，可以入栈（<code>push</code>）、出栈（<code>pop</code>）和获取栈顶对象（<code>top</code>）。</p>
+<p><code>LocalProxy</code> 是作为 <code>Local</code> 的一个代理模式，它接受一个 <code>callable</code> 对象，注意参数不是 <code>Local</code> 实例，这个 <code>callable</code> 对象返回的结果才是 <code>Local</code> 实例，所有对于 <code>LocalProxy</code> 对象的操作都会转发到对应的 <code>Local</code>。 上</p>
+<p>当 <code>app = Flask(__name__)</code> 实例化一个 <strong>Flask App</strong> 时，<code>App Context</code> 并没有立即被入栈，<code>LocalStack</code> 栈顶元素是空的，返回 <code>None</code> 值，<code>current_app</code>，<code>request</code>，<code>session</code> 和 <code>g</code> 也是 <code>unbound</code> 状态，此时使用这些对象会引发 <code>RuntimeError</code>，解决方法是手动将 <code>app.app_context()</code> 入栈。</p>
+<p>当 <code>Flask</code> 应用被 <code>werkzeug</code> 自带的开发服务器或者 <code>gunicorn</code> 用于生产的这类 WSGI 服务器架起的时候，每一个请求进来之前会自动将请求上下文（<code>Request Context</code>）入栈。</p>
+<p>应用上下文（<code>App Context</code>）在 flask v0.1 版本的源码中没有，后面版本引入，应用上下文也会自动入栈，后面待看。</p>
+<p><code>threading.local</code> 使用：<br><img src="/images/threading-local.png" alt="threading.local"></p>
+<p><code>Flask</code> 的 <code>App Context</code> 使用：<br><img src="/images/flask-app-context.png" alt="App Context"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 优先使用 Greenlet 的线程ID</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">from</span> greenlet <span class="keyword">import</span> getcurrent <span class="keyword">as</span> get_ident</span><br><span class="line"><span class="keyword">except</span> ImportError:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">from</span> thread <span class="keyword">import</span> get_ident</span><br><span class="line">    <span class="keyword">except</span> ImportError:</span><br><span class="line">        <span class="keyword">from</span> _thread <span class="keyword">import</span> get_ident</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Local</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="comment"># 固定属性</span></span><br><span class="line">    __slots__ = (<span class="string">'__storage__'</span>, <span class="string">'__ident_func__'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 数据存储，是一个字典</span></span><br><span class="line">        object.__setattr__(self, <span class="string">'__storage__'</span>, &#123;&#125;)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 获取当前线程ID的方法</span></span><br><span class="line">        object.__setattr__(self, <span class="string">'__ident_func__'</span>, get_ident)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__iter__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""以生成器的方式返回字典的所有元素"""</span></span><br><span class="line">        <span class="keyword">return</span> iter(self.__storage__.items())</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span><span class="params">(self, proxy)</span>:</span></span><br><span class="line">        <span class="string">"""创建一个 LocalProxy"""</span></span><br><span class="line">        <span class="keyword">return</span> LocalProxy(self, proxy)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__release_local__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""清空当前线程/协程所保存的数据"""</span></span><br><span class="line">        self.__storage__.pop(self.__ident_func__(), <span class="keyword">None</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, name)</span>:</span></span><br><span class="line">        <span class="string">"""属性访问"""</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> self.__storage__[self.__ident_func__()][name]</span><br><span class="line">        <span class="keyword">except</span> KeyError:</span><br><span class="line">            <span class="keyword">raise</span> AttributeError(name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__setattr__</span><span class="params">(self, name, value)</span>:</span></span><br><span class="line">        <span class="string">"""属性设置"""</span></span><br><span class="line">        ident = self.__ident_func__()</span><br><span class="line">        storage = self.__storage__</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            storage[ident][name] = value</span><br><span class="line">        <span class="keyword">except</span> KeyError:</span><br><span class="line">            storage[ident] = &#123;name: value&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__delattr__</span><span class="params">(self, name)</span>:</span></span><br><span class="line">        <span class="string">"""属性删除"""</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">del</span> self.__storage__[self.__ident_func__()][name]</span><br><span class="line">        <span class="keyword">except</span> KeyError:</span><br><span class="line">            <span class="keyword">raise</span> AttributeError(name)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LocalStack</span><span class="params">(object)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Local 的栈结构实现</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># Local 实例</span></span><br><span class="line">        self._local = Local()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__release_local__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 释放当前线程的数据</span></span><br><span class="line">        self._local.__release_local__()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_get__ident_func__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="comment"># 返回获取当前线程ID的函数</span></span><br><span class="line">        <span class="keyword">return</span> self._local.__ident_func__</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_set__ident_func__</span><span class="params">(self, value)</span>:</span></span><br><span class="line">        <span class="comment"># 设置获取当前线程ID的函数</span></span><br><span class="line">        object.__setattr__(self._local, <span class="string">'__ident_func__'</span>, value)</span><br><span class="line">    __ident_func__ = property(_get__ident_func__, _set__ident_func__)</span><br><span class="line">    <span class="keyword">del</span> _get__ident_func__, _set__ident_func__</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""返回一个 LocalProxy 对象，该对象始终指向 LocalStack 实例的栈顶元素"""</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">_lookup</span><span class="params">()</span>:</span></span><br><span class="line">            rv = self.top</span><br><span class="line">            <span class="keyword">if</span> rv <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">                <span class="keyword">raise</span> RuntimeError(<span class="string">'object unbound'</span>)</span><br><span class="line">            <span class="keyword">return</span> rv</span><br><span class="line">        <span class="keyword">return</span> LocalProxy(_lookup)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">push</span><span class="params">(self, obj)</span>:</span></span><br><span class="line">        <span class="string">"""入栈"""</span></span><br><span class="line">        rv = getattr(self._local, <span class="string">'stack'</span>, <span class="keyword">None</span>)</span><br><span class="line">        <span class="keyword">if</span> rv <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            self._local.stack = rv = []</span><br><span class="line">        rv.append(obj)</span><br><span class="line">        <span class="keyword">return</span> rv</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pop</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""出栈"""</span></span><br><span class="line">        stack = getattr(self._local, <span class="string">'stack'</span>, <span class="keyword">None</span>)</span><br><span class="line">        <span class="keyword">if</span> stack <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">        <span class="keyword">elif</span> len(stack) == <span class="number">1</span>:</span><br><span class="line">            release_local(self._local)</span><br><span class="line">            <span class="keyword">return</span> stack[<span class="number">-1</span>]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> stack.pop()</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">top</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""获取栈顶元素"""</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> self._local.stack[<span class="number">-1</span>]</span><br><span class="line">        <span class="keyword">except</span> (AttributeError, IndexError):</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@implements_bool</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LocalProxy</span><span class="params">(object)</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Local 的代理模式实现，所有对 LocalProxy 对象的操作，包括属性访问、方法调用和二元操作</span></span><br><span class="line"><span class="string">    都会转发到那个 callable 参数返回的 Local 对象上</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    __slots__ = (<span class="string">'__local'</span>, <span class="string">'__dict__'</span>, <span class="string">'__name__'</span>, <span class="string">'__wrapped__'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, local, name=None)</span>:</span></span><br><span class="line">        <span class="comment"># 把 callable 参数绑定到 __local 属性上</span></span><br><span class="line">        object.__setattr__(self, <span class="string">'_LocalProxy__local'</span>, local)</span><br><span class="line">        <span class="comment"># 代理名字</span></span><br><span class="line">        object.__setattr__(self, <span class="string">'__name__'</span>, name)</span><br><span class="line">        <span class="keyword">if</span> callable(local) <span class="keyword">and</span> <span class="keyword">not</span> hasattr(local, <span class="string">'__release_local__'</span>):</span><br><span class="line">            <span class="comment"># 注意这里的参数 local 仅仅是一个 callable 对象</span></span><br><span class="line">            <span class="comment"># 该对象执行返回的结果才是 Local 实例</span></span><br><span class="line">            object.__setattr__(self, <span class="string">'__wrapped__'</span>, local)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_get_current_object</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""获取当前 Local 实例"""</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> hasattr(self.__local, <span class="string">'__release_local__'</span>):</span><br><span class="line">            <span class="keyword">return</span> self.__local()</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> getattr(self.__local, self.__name__)</span><br><span class="line">        <span class="keyword">except</span> AttributeError:</span><br><span class="line">            <span class="keyword">raise</span> RuntimeError(<span class="string">'no object bound to %s'</span> % self.__name__)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__dict__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> self._get_current_object().__dict__</span><br><span class="line">        <span class="keyword">except</span> RuntimeError:</span><br><span class="line">            <span class="keyword">raise</span> AttributeError(<span class="string">'__dict__'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__repr__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            obj = self._get_current_object()</span><br><span class="line">        <span class="keyword">except</span> RuntimeError:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">'&lt;%s unbound&gt;'</span> % self.__class__.__name__</span><br><span class="line">        <span class="keyword">return</span> repr(obj)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__bool__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> bool(self._get_current_object())</span><br><span class="line">        <span class="keyword">except</span> RuntimeError:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__unicode__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> unicode(self._get_current_object())  <span class="comment"># noqa</span></span><br><span class="line">        <span class="keyword">except</span> RuntimeError:</span><br><span class="line">            <span class="keyword">return</span> repr(self)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__dir__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> dir(self._get_current_object())</span><br><span class="line">        <span class="keyword">except</span> RuntimeError:</span><br><span class="line">            <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, name)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> name == <span class="string">'__members__'</span>:</span><br><span class="line">            <span class="keyword">return</span> dir(self._get_current_object())</span><br><span class="line">        <span class="keyword">return</span> getattr(self._get_current_object(), name)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__setitem__</span><span class="params">(self, key, value)</span>:</span></span><br><span class="line">        self._get_current_object()[key] = value</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__delitem__</span><span class="params">(self, key)</span>:</span></span><br><span class="line">        <span class="keyword">del</span> self._get_current_object()[key]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 下面的源码省略，LocalProxy 重写了所有的魔法方法</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Flask/" rel="tag"># Flask</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/13/rds-for-mysql/" rel="next" title="RDS for MySQL 备份文件恢复到自建数据库">
+                <i class="fa fa-chevron-left"></i> RDS for MySQL 备份文件恢复到自建数据库
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/03/foreign-novel-appreciation-dictionary/" rel="prev" title="外国小说鉴赏辞典">
+                外国小说鉴赏辞典 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="听听那冷雨" />
+            
+              <p class="site-author-name" itemprop="name">听听那冷雨</p>
+              <p class="site-description motion-element" itemprop="description">记录一点东西</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/fuyunliu" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://www.zhihu.com/people/fuyunliu" target="_blank" title="知乎"><i class="fa fa-fw fa-graduation-cap"></i>知乎</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#导包部分"><span class="nav-number">1.</span> <span class="nav-text">导包部分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Request-和-Response"><span class="nav-number">2.</span> <span class="nav-text">Request 和 Response</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#几个有用的函数"><span class="nav-number">3.</span> <span class="nav-text">几个有用的函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Flask-类"><span class="nav-number">4.</span> <span class="nav-text">Flask 类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#全局变量"><span class="nav-number">5.</span> <span class="nav-text">全局变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#werkzeug-的-Local，LocalStack-和-LocalProxy"><span class="nav-number">6.</span> <span class="nav-text">werkzeug 的 Local，LocalStack 和 LocalProxy</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright"> &copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">听听那冷雨</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.7.1</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a class="theme-link" target="_blank" href="https://theme-next.org">NexT.Pisces</a> v6.5.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv" title="总访客量">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="site-pv" title="总访问量">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+	
+    
+
+    
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.5.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.5.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.5.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.5.0"></script>
+
+
+
+  
+
+  
+    <script id="dsq-count-scr" src="https://fuyunliu.disqus.com/count.js" async></script>
+  
+
+  
+    <script type="text/javascript">
+      var disqus_config = function () {
+        this.page.url = 'https://fuyunliu.github.io/2018/09/27/understand-flask-v01/';
+        this.page.identifier = '2018/09/27/understand-flask-v01/';
+        this.page.title = 'Flask v0.1 源码阅读';
+        };
+      function loadComments () {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://fuyunliu.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      }
+      
+        loadComments();
+      
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
