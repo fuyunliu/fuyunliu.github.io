@@ -1,36 +1,39 @@
 /* global NexT, CONFIG */
 
-NexT.utils = NexT.$u = {
+NexT.utils = {
 
   /**
-   * Wrap images with fancybox support.
+   * Wrap images with fancybox.
    */
   wrapImageWithFancyBox: function() {
-    $('.content img')
-      .not('[hidden]')
-      .not('.group-picture img, .post-gallery img')
+    $('.post-body img')
       .each(function() {
         var $image = $(this);
-        var imageTitle = $image.attr('title');
+        var imageTitle = $image.attr('title') || $image.attr('alt');
         var $imageWrapLink = $image.parent('a');
 
         if ($imageWrapLink.length < 1) {
-          var imageLink = $image.attr('data-original') ? this.getAttribute('data-original') : this.getAttribute('src');
-          $imageWrapLink = $image.wrap('<a data-fancybox="group" href="' + imageLink + '"></a>').parent('a');
+          var imageLink = $image.attr('data-src') || $image.attr('src');
+          $imageWrapLink = $image.wrap(`<a class="fancybox fancybox.image" href="${imageLink}" itemscope itemtype="http://schema.org/ImageObject" itemprop="url"></a>`).parent('a');
+          if ($image.is('.post-gallery img')) {
+            $imageWrapLink.addClass('post-gallery-img');
+            $imageWrapLink.attr('data-fancybox', 'gallery').attr('rel', 'gallery');
+          } else if ($image.is('.group-picture img')) {
+            $imageWrapLink.attr('data-fancybox', 'group').attr('rel', 'group');
+          } else {
+            $imageWrapLink.attr('data-fancybox', 'default').attr('rel', 'default');
+          }
         }
 
-        $imageWrapLink.addClass('fancybox fancybox.image');
-        $imageWrapLink.attr('rel', 'group');
-
         if (imageTitle) {
-          $imageWrapLink.append('<p class="image-caption">' + imageTitle + '</p>');
-
-          //make sure img title tag will show correctly in fancybox
-          $imageWrapLink.attr('title', imageTitle);
+          $imageWrapLink.append(`<p class="image-caption">${imageTitle}</p>`);
+          // Make sure img title tag will show correctly in fancybox
+          $imageWrapLink.attr('title', imageTitle).attr('data-caption', imageTitle);
         }
       });
 
     $('.fancybox').fancybox({
+      loop   : true,
       helpers: {
         overlay: {
           locked: false
@@ -39,59 +42,56 @@ NexT.utils = NexT.$u = {
     });
   },
 
-  lazyLoadPostsImages: function() {
-    $('#posts').find('img').lazyload({
-      //placeholder: '/images/loading.gif',
-      effect   : 'fadeIn',
-      threshold: 0
-    });
-  },
-
   /**
-   * Tabs tag listener (without twitter bootstrap).
+   * One-click copy code support.
    */
-  registerTabsTag: function() {
-    var tNav = '.tabs ul.nav-tabs ';
-
-    // Binding `nav-tabs` & `tab-content` by real time permalink changing.
-    $(function() {
-      $(window).bind('hashchange', function() {
-        var tHash = location.hash;
-        if (tHash !== '') {
-          $(tNav + 'li:has(a[href="' + tHash + '"])').addClass('active').siblings().removeClass('active');
-          $(tHash).addClass('active').siblings().removeClass('active');
-        }
-      }).trigger('hashchange');
-    });
-
-    $(tNav + '.tab').on('click', function(href) {
-      href.preventDefault();
-      // Prevent selected tab to select again.
-      if (!$(this).hasClass('active')) {
-
-        // Add & Remove active class on `nav-tabs` & `tab-content`.
-        $(this).addClass('active').siblings().removeClass('active');
-        var tActive = $(this).find('a').attr('href');
-        $(tActive).addClass('active').siblings().removeClass('active');
-
-        // Clear location hash in browser if #permalink exists.
-        if (location.hash !== '') {
-          history.pushState('', document.title, window.location.pathname + window.location.search);
+  registerCopyCode: function() {
+    $('.highlight').not('.gist .highlight').each(function(i, e) {
+      function initButton(button) {
+        if (CONFIG.copycode.style === 'mac') {
+          button.html('<i class="fa fa-clipboard"></i>');
+        } else {
+          button.text(CONFIG.translation.copy_button);
         }
       }
-    });
-
-  },
-
-  registerESCKeyEvent: function() {
-    $(document).on('keyup', function(event) {
-      var shouldDismissSearchPopup = event.which === 27
-          && $('.search-popup').is(':visible');
-      if (shouldDismissSearchPopup) {
-        $('.search-popup').hide();
-        $('.search-popup-overlay').remove();
-        $('body').css('overflow', '');
-      }
+      var $button = $('<div>').addClass('copy-btn');
+      $button.on('click', function() {
+        var code = $(this).parent().find('.code').find('.line').map(function(i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; // Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.readOnly = true;
+        ta.value = code;
+        document.body.appendChild(ta);
+        const selection = document.getSelection();
+        const selected = selection.rangeCount > 0 ? selection.getRangeAt(0) : false;
+        ta.select();
+        ta.setSelectionRange(0, code.length);
+        ta.readOnly = false;
+        var result = document.execCommand('copy');
+        if (CONFIG.copycode.show_result) {
+          $(this).text(result ? CONFIG.translation.copy_success : CONFIG.translation.copy_failure);
+        }
+        ta.blur(); // For iOS
+        $(this).blur();
+        if (selected) {
+          selection.removeAllRanges();
+          selection.addRange(selected);
+        }
+        document.body.removeChild(ta);
+      });
+      $button.on('mouseleave', function() {
+        var $b = $(this).closest('.copy-btn');
+        setTimeout(function() {
+          initButton($b);
+        }, 300);
+      });
+      initButton($button);
+      $(e).wrap($('<div>').addClass('highlight-wrap')).after($button);
     });
   },
 
@@ -99,28 +99,60 @@ NexT.utils = NexT.$u = {
     var THRESHOLD = 50;
     var $top = $('.back-to-top');
 
-    function initBackToTop() {
+    // For init back to top in sidebar if page was scrolled after page refresh.
+    $(window).on('load scroll', function() {
       $top.toggleClass('back-to-top-on', window.pageYOffset > THRESHOLD);
 
       var scrollTop = $(window).scrollTop();
       var contentVisibilityHeight = NexT.utils.getContentVisibilityHeight();
       var scrollPercent = scrollTop / contentVisibilityHeight;
       var scrollPercentRounded = Math.round(scrollPercent * 100);
-      var scrollPercentMaxed = scrollPercentRounded > 100 ? 100 : scrollPercentRounded;
-      $('#scrollpercent>span').html(scrollPercentMaxed);
-    }
-
-    // For init back to top in sidebar if page was scrolled after page refresh.
-    $(window).on('load', function() {
-      initBackToTop();
-    });
-
-    $(window).on('scroll', function() {
-      initBackToTop();
+      var scrollPercentMaxed = Math.min(scrollPercentRounded, 100);
+      $('#scrollpercent > span').html(scrollPercentMaxed);
     });
 
     $top.on('click', function() {
-      $('body').velocity('scroll');
+      $('html, body').animate({ scrollTop: 0 });
+    });
+  },
+
+  /**
+   * Tabs tag listener (without twitter bootstrap).
+   */
+  registerTabsTag: function() {
+    // Binding `nav-tabs` & `tab-content` by real time permalink changing.
+    $('.tabs ul.nav-tabs .tab').on('click', function(href) {
+      href.preventDefault();
+      // Prevent selected tab to select again.
+      if (!$(this).hasClass('active')) {
+        // Add & Remove active class on `nav-tabs` & `tab-content`.
+        $(this).addClass('active').siblings().removeClass('active');
+        var tActive = $(this).find('a').attr('href');
+        $(tActive).addClass('active').siblings().removeClass('active');
+      }
+    });
+  },
+
+  registerCanIUseTag: function() {
+    // GET RESPONSIVE HEIGHT PASSED FROM IFRAME
+    window.addEventListener('message', e => {
+      var data = e.data;
+      if ((typeof data === 'string') && (data.indexOf('ciu_embed') > -1)) {
+        var featureID = data.split(':')[1];
+        var height = data.split(':')[2];
+        $(`iframe[data-feature=${featureID}]`).height(parseInt(height, 10) + 30);
+      }
+    }, false);
+  },
+
+  registerActiveMenuItem: function() {
+    $('.menu-item').each(function() {
+      var target = $(this).find('a[href]')[0];
+      if (target.hostname === location.hostname && (target.pathname === location.pathname || target.pathname === location.pathname.replace('index.html', '', 'g'))) {
+        $(this).addClass('menu-item-active');
+      } else {
+        $(this).removeClass('menu-item-active');
+      }
     });
   },
 
@@ -201,7 +233,6 @@ NexT.utils = NexT.$u = {
         }
       }
     });
-
   },
 
   hasMobileUA: function() {
@@ -234,11 +265,25 @@ NexT.utils = NexT.$u = {
     return selector.replace(/[!"$%&'()*+,./:;<=>?@[\\\]^`{|}~]/g, '\\$&');
   },
 
-  displaySidebar: function() {
+  updateSidebarPosition: function() {
     if (!this.isDesktop() || this.isPisces() || this.isGemini()) {
       return;
     }
-    $('.sidebar-toggle').trigger('click');
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    var display = CONFIG.page.sidebar;
+    if (typeof display !== 'boolean') {
+      // There's no definition sidebar in the page front-matter
+      var hasTOC = $tocContent.length > 0 && $tocContent.html().trim().length > 0;
+      display = CONFIG.sidebar.display === 'always' || (CONFIG.sidebar.display === 'post' && hasTOC);
+    }
+    if (display) {
+      $(document).trigger('sidebar:show');
+    }
+  },
+
+  isMuse: function() {
+    return CONFIG.scheme === 'Muse';
   },
 
   isMist: function() {
@@ -254,25 +299,23 @@ NexT.utils = NexT.$u = {
   },
 
   getScrollbarWidth: function() {
-    var $div = $('<div />').addClass('scrollbar-measure').prependTo('body');
+    var $div = $('<div/>').addClass('scrollbar-measure').prependTo('body');
     var div = $div[0];
     var scrollbarWidth = div.offsetWidth - div.clientWidth;
-
     $div.remove();
 
     return scrollbarWidth;
   },
 
   getContentVisibilityHeight: function() {
-    var docHeight = $('#content').height();
+    var docHeight = $('.container').height();
     var winHeight = $(window).height();
     var contentVisibilityHeight = docHeight > winHeight ? docHeight - winHeight : $(document).height() - winHeight;
     return contentVisibilityHeight;
   },
 
   getSidebarb2tHeight: function() {
-    //var sidebarb2tHeight = (CONFIG.sidebar.b2t) ? document.getElementsByClassName('back-to-top')[0].clientHeight : 0;
-    var sidebarb2tHeight = CONFIG.sidebar.b2t ? $('.back-to-top').height() : 0;
+    var sidebarb2tHeight = CONFIG.back2top.enable && CONFIG.back2top.sidebar ? $('.back-to-top').height() : 0;
     return sidebarb2tHeight;
   },
 
@@ -286,47 +329,4 @@ NexT.utils = NexT.$u = {
       : (sidebarPadding * 2) + (sidebarNavHeight / 2);
     return sidebarSchemePadding;
   }
-
 };
-
-$(document).ready(function() {
-
-  /**
-   * Init Sidebar & TOC inner dimensions on all pages and for all schemes.
-   * Need for Sidebar/TOC inner scrolling if content taller then viewport.
-   */
-
-  function updateSidebarHeight(height) {
-    height = height || 'auto';
-    $('.site-overview, .post-toc').css('max-height', height);
-  }
-
-  function initSidebarDimension() {
-    var updateSidebarHeightTimer;
-
-    $(window).on('resize', function() {
-      updateSidebarHeightTimer && clearTimeout(updateSidebarHeightTimer);
-
-      updateSidebarHeightTimer = setTimeout(function() {
-        var sidebarWrapperHeight = document.body.clientHeight - NexT.utils.getSidebarSchemePadding();
-
-        updateSidebarHeight(sidebarWrapperHeight);
-      }, 0);
-    });
-
-    // Initialize Sidebar & TOC Width.
-    var scrollbarWidth = NexT.utils.getScrollbarWidth();
-    if ($('.site-overview-wrap').height() > (document.body.clientHeight - NexT.utils.getSidebarSchemePadding())) {
-      $('.site-overview').css('width', 'calc(100% + ' + scrollbarWidth + 'px)');
-    }
-    if ($('.post-toc-wrap').height() > (document.body.clientHeight - NexT.utils.getSidebarSchemePadding())) {
-      $('.post-toc').css('width', 'calc(100% + ' + scrollbarWidth + 'px)');
-    }
-
-    // Initialize Sidebar & TOC Height.
-    updateSidebarHeight(document.body.clientHeight - NexT.utils.getSidebarSchemePadding());
-  }
-
-  initSidebarDimension();
-
-});
