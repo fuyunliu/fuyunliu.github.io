@@ -64,7 +64,7 @@
 <meta property="og:site_name" content="听听那冷雨">
 <meta property="og:description" content="记录一下 CentOS 编译安装 Python3 的过程。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-01-24T06:57:46.657Z">
+<meta property="og:updated_time" content="2019-08-06T14:01:05.399Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CentOS 编译安装 Python3">
 <meta name="twitter:description" content="记录一下 CentOS 编译安装 Python3 的过程。">
@@ -297,7 +297,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-01-24 14:57:46" itemprop="dateModified" datetime="2019-01-24T14:57:46+08:00">2019-01-24</time>
+                <time title="修改时间：2019-08-06 22:01:05" itemprop="dateModified" datetime="2019-08-06T22:01:05+08:00">2019-08-06</time>
               </span>
             
           
@@ -360,24 +360,24 @@
 
 <!-- toc -->
 
-<h1 id="安装-openssl"><a href="#安装-openssl" class="headerlink" title="安装 openssl"></a>安装 openssl</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y openssl-static</span><br></pre></td></tr></table></figure>
+<h2 id="安装-openssl"><a href="#安装-openssl" class="headerlink" title="安装 openssl"></a>安装 <code>openssl</code></h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y openssl-static</span><br></pre></td></tr></table></figure>
 
-<h1 id="安装-gcc"><a href="#安装-gcc" class="headerlink" title="安装 gcc"></a>安装 gcc</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y gcc</span><br></pre></td></tr></table></figure>
+<h2 id="安装-gcc"><a href="#安装-gcc" class="headerlink" title="安装 gcc"></a>安装 <code>gcc</code></h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y gcc</span><br></pre></td></tr></table></figure>
 
-<h1 id="安装-sqlite-devel"><a href="#安装-sqlite-devel" class="headerlink" title="安装 sqlite-devel"></a>安装 sqlite-devel</h1><p>少了这步的话，python3的一些库如twisted使用不正常，会提示缺少_sqlit3。</p>
+<h2 id="安装-sqlite-devel"><a href="#安装-sqlite-devel" class="headerlink" title="安装 sqlite-devel"></a>安装 <code>sqlite-devel</code></h2><p>少了这步的话，python3的一些库如twisted使用不正常，会提示缺少_sqlit3。</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y sqlite-devel</span><br></pre></td></tr></table></figure>
 
-<h1 id="下载-python3-包"><a href="#下载-python3-包" class="headerlink" title="下载 python3 包"></a>下载 python3 包</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tgz</span><br></pre></td></tr></table></figure>
+<h2 id="下载-python3-包"><a href="#下载-python3-包" class="headerlink" title="下载 python3 包"></a>下载 <code>python3</code> 包</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tgz</span><br></pre></td></tr></table></figure>
 
-<h1 id="解压"><a href="#解压" class="headerlink" title="解压"></a>解压</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf Python-3.6.4.tgz</span><br></pre></td></tr></table></figure>
+<h2 id="解压"><a href="#解压" class="headerlink" title="解压"></a>解压</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf Python-3.6.4.tgz</span><br></pre></td></tr></table></figure>
 
-<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> Python-3.6.4</span><br><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/python3 --<span class="built_in">enable</span>-loadable-sqlite-extensions --<span class="built_in">enable</span>-optimizations</span><br></pre></td></tr></table></figure>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> Python-3.6.4</span><br><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/python3 --<span class="built_in">enable</span>-loadable-sqlite-extensions --<span class="built_in">enable</span>-optimizations</span><br></pre></td></tr></table></figure>
 
-<h1 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<h2 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
 
-<h1 id="添加软连接"><a href="#添加软连接" class="headerlink" title="添加软连接"></a>添加软连接</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/python3/bin/python3 /usr/bin/python3</span><br></pre></td></tr></table></figure>
+<h2 id="添加软连接"><a href="#添加软连接" class="headerlink" title="添加软连接"></a>添加软连接</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/python3/bin/python3 /usr/bin/python3</span><br></pre></td></tr></table></figure>
 
-<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>检查是否安装成功</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>检查是否安装成功</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 --version</span><br></pre></td></tr></table></figure>
 
 <p><code>yum</code> 搜索可用包</p>
@@ -474,7 +474,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -518,7 +518,11 @@
         
           
         
-        <span class="site-state-item-count">6</span>
+          
+        
+          
+        
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
@@ -563,7 +567,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-openssl"><span class="nav-number">1.</span> <span class="nav-text">安装 openssl</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-gcc"><span class="nav-number">2.</span> <span class="nav-text">安装 gcc</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装-sqlite-devel"><span class="nav-number">3.</span> <span class="nav-text">安装 sqlite-devel</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#下载-python3-包"><span class="nav-number">4.</span> <span class="nav-text">下载 python3 包</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解压"><span class="nav-number">5.</span> <span class="nav-text">解压</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置"><span class="nav-number">6.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编译安装"><span class="nav-number">7.</span> <span class="nav-text">编译安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#添加软连接"><span class="nav-number">8.</span> <span class="nav-text">添加软连接</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">9.</span> <span class="nav-text">后记</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装-openssl"><span class="nav-number">1.</span> <span class="nav-text">安装 openssl</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装-gcc"><span class="nav-number">2.</span> <span class="nav-text">安装 gcc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装-sqlite-devel"><span class="nav-number">3.</span> <span class="nav-text">安装 sqlite-devel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下载-python3-包"><span class="nav-number">4.</span> <span class="nav-text">下载 python3 包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解压"><span class="nav-number">5.</span> <span class="nav-text">解压</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置"><span class="nav-number">6.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编译安装"><span class="nav-number">7.</span> <span class="nav-text">编译安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#添加软连接"><span class="nav-number">8.</span> <span class="nav-text">添加软连接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">9.</span> <span class="nav-text">后记</span></a></li></ol></div>
             
 
           </div>

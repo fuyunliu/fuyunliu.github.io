@@ -64,7 +64,7 @@
 <meta property="og:site_name" content="听听那冷雨">
 <meta property="og:description" content="在用 Python 处理 csv 文件时遇到2个错误，记录下处理方法。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-12-11T11:07:53.036Z">
+<meta property="og:updated_time" content="2019-08-06T14:01:32.205Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python 处理 Csv 文件常见错误">
 <meta name="twitter:description" content="在用 Python 处理 csv 文件时遇到2个错误，记录下处理方法。">
@@ -297,7 +297,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2018-12-11 19:07:53" itemprop="dateModified" datetime="2018-12-11T19:07:53+08:00">2018-12-11</time>
+                <time title="修改时间：2019-08-06 22:01:32" itemprop="dateModified" datetime="2019-08-06T22:01:32+08:00">2019-08-06</time>
               </span>
             
           
@@ -360,10 +360,10 @@
 
 <!-- toc -->
 
-<h1 id="字段包含-NULL-值"><a href="#字段包含-NULL-值" class="headerlink" title="字段包含 NULL 值"></a>字段包含 NULL 值</h1><p>csv 文件中字段包含 NULL 值会出错，解决方法是读取文件时把 NULL 值替换为空字符串。</p>
+<h2 id="字段包含-NULL-值"><a href="#字段包含-NULL-值" class="headerlink" title="字段包含 NULL 值"></a>字段包含 <code>NULL</code> 值</h2><p>csv 文件中字段包含 NULL 值会出错，解决方法是读取文件时把 NULL 值替换为空字符串。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'test.csv'</span>, <span class="string">'rt'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    fc = csv.DictReader((line.replace(<span class="string">'\0'</span>, <span class="string">''</span>) <span class="keyword">for</span> line <span class="keyword">in</span> f))</span><br><span class="line">    <span class="comment"># do something with fc</span></span><br></pre></td></tr></table></figure>
 
-<h1 id="OverflowError-and-maxInt"><a href="#OverflowError-and-maxInt" class="headerlink" title="OverflowError and maxInt"></a>OverflowError and maxInt</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">maxInt = sys.maxsize</span><br><span class="line">decrement = <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> decrement:</span><br><span class="line">    <span class="comment"># decrease the maxInt value by factor 10</span></span><br><span class="line">    <span class="comment"># as long as the OverflowError occurs.</span></span><br><span class="line"></span><br><span class="line">    decrement = <span class="keyword">False</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        csv.field_size_limit(maxInt)</span><br><span class="line">    <span class="keyword">except</span> OverflowError:</span><br><span class="line">        maxInt = int(maxInt / <span class="number">10</span>)</span><br><span class="line">        decrement = <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'test.csv'</span>, <span class="string">'rt'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    fc = csv.DictReader(f)</span><br><span class="line">    <span class="comment"># do something with fc</span></span><br></pre></td></tr></table></figure>
+<h2 id="OverflowError-and-maxInt"><a href="#OverflowError-and-maxInt" class="headerlink" title="OverflowError and maxInt"></a><code>OverflowError and maxInt</code></h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">maxInt = sys.maxsize</span><br><span class="line">decrement = <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> decrement:</span><br><span class="line">    <span class="comment"># decrease the maxInt value by factor 10</span></span><br><span class="line">    <span class="comment"># as long as the OverflowError occurs.</span></span><br><span class="line"></span><br><span class="line">    decrement = <span class="keyword">False</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        csv.field_size_limit(maxInt)</span><br><span class="line">    <span class="keyword">except</span> OverflowError:</span><br><span class="line">        maxInt = int(maxInt / <span class="number">10</span>)</span><br><span class="line">        decrement = <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'test.csv'</span>, <span class="string">'rt'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    fc = csv.DictReader(f)</span><br><span class="line">    <span class="comment"># do something with fc</span></span><br></pre></td></tr></table></figure>
 
 
     </div>
@@ -451,7 +451,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -495,7 +495,11 @@
         
           
         
-        <span class="site-state-item-count">6</span>
+          
+        
+          
+        
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">标签</span>
         </a>
       </div>
@@ -540,7 +544,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#字段包含-NULL-值"><span class="nav-number">1.</span> <span class="nav-text">字段包含 NULL 值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#OverflowError-and-maxInt"><span class="nav-number">2.</span> <span class="nav-text">OverflowError and maxInt</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#字段包含-NULL-值"><span class="nav-number">1.</span> <span class="nav-text">字段包含 NULL 值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OverflowError-and-maxInt"><span class="nav-number">2.</span> <span class="nav-text">OverflowError and maxInt</span></a></li></ol></div>
             
 
           </div>

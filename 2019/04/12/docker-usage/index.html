@@ -56,19 +56,19 @@
   };
 </script>
 
-  <meta name="description" content="云数据库MySQL版使用开源软件Percona Xtrabackup对数据库进行备份，所以您可以使用该软件将云数据库MySQL的备份文件恢复到自建数据库中，本文将介绍详细的操作步骤。">
-<meta name="keywords" content="CentOS,MySQL">
+  <meta name="description" content="list docker cli commands docker --help docker contianer --help docker version docker --version">
+<meta name="keywords" content="Docker">
 <meta property="og:type" content="article">
-<meta property="og:title" content="RDS for MySQL 备份文件恢复到自建数据库">
-<meta property="og:url" content="https://fuyunliu.github.io/2018/09/13/rds-for-mysql/index.html">
+<meta property="og:title" content="Docker 常用命令">
+<meta property="og:url" content="https://fuyunliu.github.io/2019/04/12/docker-usage/index.html">
 <meta property="og:site_name" content="听听那冷雨">
-<meta property="og:description" content="云数据库MySQL版使用开源软件Percona Xtrabackup对数据库进行备份，所以您可以使用该软件将云数据库MySQL的备份文件恢复到自建数据库中，本文将介绍详细的操作步骤。">
+<meta property="og:description" content="list docker cli commands docker --help docker contianer --help docker version docker --version">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-06T14:03:51.725Z">
+<meta property="og:updated_time" content="2019-08-06T14:12:18.838Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="RDS for MySQL 备份文件恢复到自建数据库">
-<meta name="twitter:description" content="云数据库MySQL版使用开源软件Percona Xtrabackup对数据库进行备份，所以您可以使用该软件将云数据库MySQL的备份文件恢复到自建数据库中，本文将介绍详细的操作步骤。">
-  <link rel="canonical" href="https://fuyunliu.github.io/2018/09/13/rds-for-mysql/">
+<meta name="twitter:title" content="Docker 常用命令">
+<meta name="twitter:description" content="list docker cli commands docker --help docker contianer --help docker version docker --version">
+  <link rel="canonical" href="https://fuyunliu.github.io/2019/04/12/docker-usage/">
 
 
 <script id="page-configurations">
@@ -82,7 +82,7 @@
   };
 </script>
 
-  <title>RDS for MySQL 备份文件恢复到自建数据库 | 听听那冷雨</title>
+  <title>Docker 常用命令 | 听听那冷雨</title>
   
 
 
@@ -250,7 +250,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://fuyunliu.github.io/2018/09/13/rds-for-mysql/">
+    <link itemprop="mainEntityOfPage" href="https://fuyunliu.github.io/2019/04/12/docker-usage/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="听听那冷雨">
@@ -264,7 +264,7 @@
       <header class="post-header">
 
         
-          <h1 class="post-title" itemprop="name headline">RDS for MySQL 备份文件恢复到自建数据库
+          <h1 class="post-title" itemprop="name headline">Docker 常用命令
 
               
             
@@ -284,7 +284,7 @@
                 
               
 
-              <time title="创建时间：2018-09-13 11:45:58" itemprop="dateCreated datePublished" datetime="2018-09-13T11:45:58+08:00">2018-09-13</time>
+              <time title="创建时间：2019-04-12 15:18:31" itemprop="dateCreated datePublished" datetime="2019-04-12T15:18:31+08:00">2019-04-12</time>
             </span>
           
             
@@ -297,7 +297,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-08-06 22:03:51" itemprop="dateModified" datetime="2019-08-06T22:03:51+08:00">2019-08-06</time>
+                <time title="修改时间：2019-08-06 22:12:18" itemprop="dateModified" datetime="2019-08-06T22:12:18+08:00">2019-08-06</time>
               </span>
             
           
@@ -338,8 +338,8 @@
       <span class="post-meta-item-text">评论数：</span>
     
   
-    <a href="/2018/09/13/rds-for-mysql/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2018/09/13/rds-for-mysql/" itemprop="commentCount"></span>
+    <a href="/2019/04/12/docker-usage/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/04/12/docker-usage/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -355,30 +355,28 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>云数据库MySQL版使用开源软件Percona Xtrabackup对数据库进行备份，所以您可以使用该软件将云数据库MySQL的备份文件恢复到自建数据库中，本文将介绍详细的操作步骤。</p>
+        <p>list docker cli commands</p>
+<p><code>docker --help</code></p>
+<p><code>docker contianer --help</code></p>
+<p>docker version</p>
+<p><code>docker --version</code></p>
 <a id="more"></a>
 
 <!-- toc -->
 
-<h2 id="软件说明"><a href="#软件说明" class="headerlink" title="软件说明"></a>软件说明</h2><ol>
-<li>MySQL 5.6.41</li>
-<li>Percona XtraBackup 2.2.9</li>
-<li><a href="http://oss.aliyuncs.com/aliyunecs/rds_backup_extract.sh?spm=a2c4g.11186623.2.6.3f4d5cf8Ze2ycZ&file=rds_backup_extract.sh" target="_blank" rel="noopener">rds_backup_extract.sh</a></li>
-</ol>
-<h2 id="解压数据库备份文件"><a href="#解压数据库备份文件" class="headerlink" title="解压数据库备份文件"></a>解压数据库备份文件</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">unzip -P密码 mysql_data_backup.tar.gz.zip</span><br><span class="line">bash rds_backup_extract -f mysql_data_backup.tar.gz -C /data/mysql/data</span><br></pre></td></tr></table></figure>
-
-<h2 id="修改配置文件-backup-my-cnf-如下"><a href="#修改配置文件-backup-my-cnf-如下" class="headerlink" title="修改配置文件 backup-my.cnf 如下"></a>修改配置文件 <code>backup-my.cnf</code> 如下</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This MySQL options file was generated by innobackupex.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The MySQL server</span></span><br><span class="line">[mysqld]</span><br><span class="line">innodb_checksum_algorithm=innodb</span><br><span class="line"><span class="comment"># innodb_log_checksum_algorithm=innodb</span></span><br><span class="line">innodb_data_file_path=ibdata1:200M:autoextend</span><br><span class="line">innodb_log_files_in_group=2</span><br><span class="line">innodb_log_file_size=1572864000</span><br><span class="line"><span class="comment"># innodb_fast_checksum=false</span></span><br><span class="line"><span class="comment"># innodb_page_size=16384</span></span><br><span class="line"><span class="comment"># innodb_log_block_size=512</span></span><br><span class="line">innodb_undo_directory=.</span><br><span class="line">innodb_undo_tablespaces=0</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># rds_encrypt_data=false</span></span><br><span class="line"><span class="comment"># innodb_encrypt_algorithm=aes_128_ecb</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="修改文件属主"><a href="#修改文件属主" class="headerlink" title="修改文件属主"></a>修改文件属主</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chown -R mysql:mysql /data/mysql/data</span><br></pre></td></tr></table></figure>
-
-<h2 id="恢复数据文件"><a href="#恢复数据文件" class="headerlink" title="恢复数据文件"></a>恢复数据文件</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod 400 /data/mysql/data/backup-my.cnf</span><br><span class="line">innobackupex --defaults-file=/data/mysql/data/backup-my.cnf --apply-log /data/mysql/data</span><br></pre></td></tr></table></figure>
-
-<h2 id="启动数据库并登入验证"><a href="#启动数据库并登入验证" class="headerlink" title="启动数据库并登入验证"></a>启动数据库并登入验证</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld_safe --defaults-file=/data/mysql/data/backup-my.cnf --user=mysql --datadir=/data/mysql/data --skip-grant-tables &amp;</span><br></pre></td></tr></table></figure>
-
-<h2 id="新建用户"><a href="#新建用户" class="headerlink" title="新建用户"></a>新建用户</h2><p>恢复完成后，表 mysql.user 中是不包含 RDS 中创建的用户，需要新建，新建用户前请执行如下 SQL：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> mysql.db <span class="keyword">where</span> <span class="keyword">user</span>&lt;&gt;<span class="string">'root'</span> <span class="keyword">and</span> <span class="keyword">char_length</span>(<span class="keyword">user</span>)&gt;<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> mysql.tables_priv <span class="keyword">where</span> <span class="keyword">user</span>&lt;&gt;<span class="string">'root'</span> <span class="keyword">and</span> <span class="keyword">char_length</span>(<span class="keyword">user</span>)&gt;<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">flush</span> <span class="keyword">privileges</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://help.aliyun.com/knowledge_detail/41817.html" target="_blank" rel="noopener">阿里云数据备份/恢复</a></p>
+<p>docker info</p>
+<p><code>docker info</code></p>
+<p>list image</p>
+<p><code>docker image ls</code> or <code>docker images</code></p>
+<p>list container</p>
+<p><code>docker container ls</code></p>
+<p><code>docker container ls --all</code> # all mode</p>
+<p><code>docker container ls -aq</code> # all in quite mode</p>
+<p>run image</p>
+<p><code>docker run hello-world</code></p>
+<p><code>docker run -d -p 6379:6379 redis</code></p>
+<p>login running container</p>
+<p><code>docker exec -it &lt;name&gt; bash</code></p>
 
     </div>
 
@@ -390,15 +388,13 @@
           
         
         <div class="post-tags">
-            <a href="/tags/CentOS/" rel="tag"># CentOS</a>
-          
-            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+            <a href="/tags/Docker/" rel="tag"># Docker</a>
           
         </div>
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
-              <a href="/2018/09/06/centos-install-mysql/" rel="next" title="CentOS 离线安装 MySQL">
-                <i class="fa fa-chevron-left"></i> CentOS 离线安装 MySQL
+              <a href="/2019/01/15/treenode/" rel="next" title="二叉树">
+                <i class="fa fa-chevron-left"></i> 二叉树
               </a>
             
           </div>
@@ -406,8 +402,8 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-              <a href="/2018/09/27/understand-flask-v01/" rel="prev" title="Flask v0.1 源码阅读">
-                Flask v0.1 源码阅读 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/05/12/sqlalchemy-usage/" rel="prev" title="Sqlalchemy 基本用法">
+                Sqlalchemy 基本用法 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -442,17 +438,8 @@
 
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-inner">
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <div class="site-overview-wrap sidebar-panel">
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
 
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -550,23 +537,6 @@
 
         </div>
       </div>
-      <!--noindex-->
-        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-            
-            
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#软件说明"><span class="nav-number">1.</span> <span class="nav-text">软件说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解压数据库备份文件"><span class="nav-number">2.</span> <span class="nav-text">解压数据库备份文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改配置文件-backup-my-cnf-如下"><span class="nav-number">3.</span> <span class="nav-text">修改配置文件 backup-my.cnf 如下</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改文件属主"><span class="nav-number">4.</span> <span class="nav-text">修改文件属主</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#恢复数据文件"><span class="nav-number">5.</span> <span class="nav-text">恢复数据文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动数据库并登入验证"><span class="nav-number">6.</span> <span class="nav-text">启动数据库并登入验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新建用户"><span class="nav-number">7.</span> <span class="nav-text">新建用户</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">8.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
-            
-
-          </div>
-        </div>
-      <!--/noindex-->
-      
 
     </div>
   </aside>
