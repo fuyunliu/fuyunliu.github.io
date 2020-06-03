@@ -188,6 +188,99 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://fuyunliu.github.io/2020/06/03/sharding-ids-at-instagram/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="听听那冷雨">
+      <meta itemprop="description" content="记录一点东西">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="听听那冷雨">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/03/sharding-ids-at-instagram/" class="post-title-link" itemprop="url">Instagram 的分片与 ID 设计</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item post-meta-item-created">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-03 10:50:07 / 修改时间：15:13:33" itemprop="dateCreated datePublished" datetime="2020-06-03T10:50:07+08:00">2020-06-03</time>
+            </span>
+            <span class="post-meta-item post-meta-item-category">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">笔记</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/06/03/sharding-ids-at-instagram/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/06/03/sharding-ids-at-instagram/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<p>Instagram上有大量的数据，每分钟就有超过25张的图片和90个点赞。为了确保所有重要的数据都能被合理存储并且及时得被提取应用，我们对数据进行了分片（sharding）——也就是说，我们把数据放到多个桶（bucket）中，每个桶里都有一部分数据。</p>
+<p>我们的应用服务器上运行的是Django， 后端数据库是PostgreSQL。对数据分片首先要决定是否要保留PostgreSQL作为主要的数据存储库，是否要采用其他的数据库。经过评估一些不同的数据库解决方案，我们最终确定最适合的方案是在PostgreSQL数据库集群上实现数据分片。</p>
+<p>然而在把数据写到数据库之前，我们还要解决如何给数据（例如Instagram上发布的没一张图片）加上唯一标识符的问题。在单一数据库上的典型解法——使用数据库自带的自增主键功能——在当数据需要被同时插入到多个数据库时就不适用了。文章的下面就来讲讲我们是如何解决这个问题的</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/06/03/sharding-ids-at-instagram/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://fuyunliu.github.io/2020/05/29/tmux-tutorial/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -213,7 +306,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-05-29 15:03:16 / 修改时间：15:58:21" itemprop="dateCreated datePublished" datetime="2020-05-29T15:03:16+08:00">2020-05-29</time>
+              <time title="创建时间：2020-05-29 15:03:16 / 修改时间：17:05:06" itemprop="dateCreated datePublished" datetime="2020-05-29T15:03:16+08:00">2020-05-29</time>
             </span>
             <span class="post-meta-item post-meta-item-category">
               <span class="post-meta-item-icon">
@@ -250,7 +343,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>Tmux 是一个终端复用工具，和 screen 一样，screen 相对简单好使，tmux更高级。</p>
+          <p>Tmux 是一个终端复用工具，和 screen 一样，screen 相对简单好使，tmux 更高级。</p>
 <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CentOS</span></span><br><span class="line">yum install -y tmux</span><br><span class="line"></span><br><span class="line"><span class="comment"># MacOS</span></span><br><span class="line">brew install tmux</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
@@ -309,7 +402,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-08-06 22:17:44" itemprop="dateModified" datetime="2019-08-06T22:17:44+08:00">2019-08-06</time>
+                <time title="修改时间：2020-05-29 17:11:11" itemprop="dateModified" datetime="2020-05-29T17:11:11+08:00">2020-05-29</time>
               </span>
             <span class="post-meta-item post-meta-item-category">
               <span class="post-meta-item-icon">
@@ -350,105 +443,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/05/12/sqlalchemy-usage/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://fuyunliu.github.io/2019/04/12/docker-usage/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="听听那冷雨">
-      <meta itemprop="description" content="记录一点东西">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="听听那冷雨">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/04/12/docker-usage/" class="post-title-link" itemprop="url">Docker 常用命令</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item post-meta-item-created">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-04-12 15:18:31" itemprop="dateCreated datePublished" datetime="2019-04-12T15:18:31+08:00">2019-04-12</time>
-            </span>
-              <span class="post-meta-item post-meta-item-updated">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-08-06 22:12:18" itemprop="dateModified" datetime="2019-08-06T22:12:18+08:00">2019-08-06</time>
-              </span>
-            <span class="post-meta-item post-meta-item-category">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">笔记</span></a>
-                </span>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2019/04/12/docker-usage/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/04/12/docker-usage/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>list docker cli commands</p>
-<p><code>docker --help</code></p>
-<p><code>docker contianer --help</code></p>
-<p>docker version</p>
-<p><code>docker --version</code></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/04/12/docker-usage/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -598,7 +592,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-08-06 22:01:32" itemprop="dateModified" datetime="2019-08-06T22:01:32+08:00">2019-08-06</time>
+                <time title="修改时间：2020-05-29 17:08:21" itemprop="dateModified" datetime="2020-05-29T17:08:21+08:00">2020-05-29</time>
               </span>
             <span class="post-meta-item post-meta-item-category">
               <span class="post-meta-item-icon">
@@ -693,7 +687,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-08-06 22:00:04" itemprop="dateModified" datetime="2019-08-06T22:00:04+08:00">2019-08-06</time>
+                <time title="修改时间：2020-05-29 17:07:54" itemprop="dateModified" datetime="2020-05-29T17:07:54+08:00">2020-05-29</time>
               </span>
             <span class="post-meta-item post-meta-item-category">
               <span class="post-meta-item-icon">
@@ -730,7 +724,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><code>PhantomJS</code> 已经不再开发了，<code>seleniumn</code> 也警告使用 <code>PhantomJS</code> 是过时的，推荐使用 <code>headless</code> 版的 <code>Chrome</code> 或者 <code>Firefox</code>，但是有时候需要用到，够用就行，而且在 <code>Linux</code> 下安装也相对简单。</p>
+          <p>PhantomJS 已经不再开发了，Seleniumn 也警告使用 PhantomJS 是过时的，推荐使用 headless 版的 Chrome 或者 Firefox，但是有时候需要用到，够用就行，而且在 Linux 下安装也相对简单。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018/11/21/centos-install-phantomjs/#more" rel="contents">
@@ -788,7 +782,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-08-06 22:03:03" itemprop="dateModified" datetime="2019-08-06T22:03:03+08:00">2019-08-06</time>
+                <time title="修改时间：2020-05-29 17:09:05" itemprop="dateModified" datetime="2020-05-29T17:09:05+08:00">2020-05-29</time>
               </span>
             <span class="post-meta-item post-meta-item-category">
               <span class="post-meta-item-icon">
@@ -827,7 +821,7 @@
       
           <!-- toc -->
 
-<p>记录 <code>Python</code> 通过 <code>Thrift</code> 操作 <code>Hbase</code> 的通用操作方法。</p>
+<p>记录 Python 通过 Thrift 操作 Hbase 的通用操作方法。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2018/11/14/hbase-thrift/#more" rel="contents">
@@ -1229,7 +1223,7 @@ Go 语言的创造者之一</p></blockquote>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

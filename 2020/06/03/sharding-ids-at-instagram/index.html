@@ -21,20 +21,20 @@
     var CONFIG = {"hostname":"fuyunliu.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="list docker cli commands docker --help docker contianer --help docker version docker --version">
+  <meta name="description" content="Instagram上有大量的数据，每分钟就有超过25张的图片和90个点赞。为了确保所有重要的数据都能被合理存储并且及时得被提取应用，我们对数据进行了分片（sharding）——也就是说，我们把数据放到多个桶（bucket）中，每个桶里都有一部分数据。 我们的应用服务器上运行的是Django， 后端数据库是PostgreSQL。对数据分片首先要决定是否要保留PostgreSQL作为主要的数据存储">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Docker 常用命令">
-<meta property="og:url" content="https://fuyunliu.github.io/2019/04/12/docker-usage/index.html">
+<meta property="og:title" content="Instagram 的分片与 ID 设计">
+<meta property="og:url" content="https://fuyunliu.github.io/2020/06/03/sharding-ids-at-instagram/index.html">
 <meta property="og:site_name" content="听听那冷雨">
-<meta property="og:description" content="list docker cli commands docker --help docker contianer --help docker version docker --version">
+<meta property="og:description" content="Instagram上有大量的数据，每分钟就有超过25张的图片和90个点赞。为了确保所有重要的数据都能被合理存储并且及时得被提取应用，我们对数据进行了分片（sharding）——也就是说，我们把数据放到多个桶（bucket）中，每个桶里都有一部分数据。 我们的应用服务器上运行的是Django， 后端数据库是PostgreSQL。对数据分片首先要决定是否要保留PostgreSQL作为主要的数据存储">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2019-04-12T07:18:31.000Z">
-<meta property="article:modified_time" content="2019-08-06T14:12:18.838Z">
+<meta property="article:published_time" content="2020-06-03T02:50:07.000Z">
+<meta property="article:modified_time" content="2020-06-03T07:13:33.672Z">
 <meta property="article:author" content="听听那冷雨">
-<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Algorithm">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://fuyunliu.github.io/2019/04/12/docker-usage/">
+<link rel="canonical" href="https://fuyunliu.github.io/2020/06/03/sharding-ids-at-instagram/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>Docker 常用命令 | 听听那冷雨</title>
+  <title>Instagram 的分片与 ID 设计 | 听听那冷雨</title>
   
 
 
@@ -192,7 +192,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://fuyunliu.github.io/2019/04/12/docker-usage/">
+    <link itemprop="mainEntityOfPage" href="https://fuyunliu.github.io/2020/06/03/sharding-ids-at-instagram/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -205,7 +205,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Docker 常用命令
+          Instagram 的分片与 ID 设计
         </h1>
 
         <div class="post-meta">
@@ -214,16 +214,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2019-04-12 15:18:31" itemprop="dateCreated datePublished" datetime="2019-04-12T15:18:31+08:00">2019-04-12</time>
+              <time title="创建时间：2020-06-03 10:50:07 / 修改时间：15:13:33" itemprop="dateCreated datePublished" datetime="2020-06-03T10:50:07+08:00">2020-06-03</time>
             </span>
-              <span class="post-meta-item post-meta-item-updated">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-08-06 22:12:18" itemprop="dateModified" datetime="2019-08-06T22:12:18+08:00">2019-08-06</time>
-              </span>
             <span class="post-meta-item post-meta-item-category">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -250,8 +244,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/04/12/docker-usage/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/04/12/docker-usage/" itemprop="commentCount"></span>
+    <a title="valine" href="/2020/06/03/sharding-ids-at-instagram/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/06/03/sharding-ids-at-instagram/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -266,28 +260,91 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>list docker cli commands</p>
-<p><code>docker --help</code></p>
-<p><code>docker contianer --help</code></p>
-<p>docker version</p>
-<p><code>docker --version</code></p>
+        <!-- toc -->
+
+<p>Instagram上有大量的数据，每分钟就有超过25张的图片和90个点赞。为了确保所有重要的数据都能被合理存储并且及时得被提取应用，我们对数据进行了分片（sharding）——也就是说，我们把数据放到多个桶（bucket）中，每个桶里都有一部分数据。</p>
+<p>我们的应用服务器上运行的是Django， 后端数据库是PostgreSQL。对数据分片首先要决定是否要保留PostgreSQL作为主要的数据存储库，是否要采用其他的数据库。经过评估一些不同的数据库解决方案，我们最终确定最适合的方案是在PostgreSQL数据库集群上实现数据分片。</p>
+<p>然而在把数据写到数据库之前，我们还要解决如何给数据（例如Instagram上发布的没一张图片）加上唯一标识符的问题。在单一数据库上的典型解法——使用数据库自带的自增主键功能——在当数据需要被同时插入到多个数据库时就不适用了。文章的下面就来讲讲我们是如何解决这个问题的</p>
 <a id="more"></a>
 
-<!-- toc -->
+<p>开始前，我们先列出系统所需要的所有重要的功能。</p>
+<blockquote>
+<ol>
+<li>产生的数据ID需是可以按时间排序的。（比如对一列图片数据的ID进行排序，可以不需要提取太多图片本身的信息）</li>
+<li>理想的ID是64位的。（这样索引更小，存储也更优，像Redis）</li>
+<li>系统要尽量少的引用“可变动因素”——在很少工程师的情况下还可以扩张Instagram的很大一部分原因就是，我们相信简单易懂的方案。</li>
+</ol>
+</blockquote>
+<h2 id="现有的解决方案"><a href="#现有的解决方案" class="headerlink" title="现有的解决方案"></a>现有的解决方案</h2><h3 id="由Web应用层生成ID"><a href="#由Web应用层生成ID" class="headerlink" title="由Web应用层生成ID"></a>由Web应用层生成ID</h3><p>这种方案将ID的生成完全交到应用层，而不是数据库。例如，MongoDB的ObjectId，就是12字节长并且在最前面加上时间戳进行编码。另一个流行的方案是使用UUIDs。</p>
+<p>优点：</p>
+<blockquote>
+<ol>
+<li>每个应用线程独立生成ID，最小的降低ID生成的失败和竞争。</li>
+<li>如果用时间戳作为ID的起始部分，那么ID可以按时间排序。</li>
+</ol>
+</blockquote>
+<p>缺点：</p>
+<blockquote>
+<ol>
+<li>通常需要更多的存储空间（96位或者更多）来确保ID的合理唯一性。</li>
+<li>一些UUID类型完全是随机的，无法排序。</li>
+</ol>
+</blockquote>
+<h3 id="通过单独的服务产生ID"><a href="#通过单独的服务产生ID" class="headerlink" title="通过单独的服务产生ID"></a>通过单独的服务产生ID</h3><p>例如：Twitter的Snowflake，是一个Thrift服务，使用了Apache Zookeeper来协调各个结点并且产生64为的唯一ID。</p>
+<p>优点：</p>
+<blockquote>
+<ol>
+<li>Snowflake的ID只有64位，是UUID的一半。</li>
+<li>可以放时间戳到ID头，从而可以按时间排序。</li>
+<li>分布式系统保证了系统结点不会挂掉。</li>
+</ol>
+</blockquote>
+<p>缺点：</p>
+<blockquote>
+<p>增加了复杂性，而且引入了更多的“可变动因素”（如ZooKeeper, Snowflake服务器）到系统构架中。</p>
+</blockquote>
+<h3 id="数据库票据（DB-Ticket）服务器"><a href="#数据库票据（DB-Ticket）服务器" class="headerlink" title="数据库票据（DB Ticket）服务器"></a>数据库票据（DB Ticket）服务器</h3><p>利用数据库自带的自增特性来确保唯一性。Flicker采用这一方法，不过还用了两台ticket数据库（一个生成偶数，一个生成奇数）来避免单点失败。</p>
+<p>优点：</p>
+<blockquote>
+<p>数据库好理解，带有易预测的可扩张功能。</p>
+</blockquote>
+<p>缺点：</p>
+<blockquote>
+<ol>
+<li>最终会出现数据写入的瓶颈（尽管Flicker称在高扩展下没有问题）。</li>
+<li>需要管理多的两台服务器（或者EC2实例）。</li>
+<li>如果单独使用数据库，会出现单点失效。如果使用多个数据库，则不能保证ID可以按时间排序。</li>
+</ol>
+</blockquote>
+<p>在所有这些方案中，Twitter的snowflake是最接近的，但是生成ID所需的添加复杂性又和我们的目标冲突。我们的替换方案是采用概念上相近的方法，但是带到PostgreSQL内部实现。</p>
+<h2 id="Instagram-的方案"><a href="#Instagram-的方案" class="headerlink" title="Instagram 的方案"></a>Instagram 的方案</h2><p>我们的分片系统是由上千个“逻辑”分片组成的，由代码映射到少量的物理分片。</p>
+<p>通过这个方法，我们一开始用少数数据库实现，慢慢扩展到更多个数据库，只需要把部分逻辑分片从一台数据库转移到另一台数据库里，不需要重新把数据重新聚合。我们用到的PostgreSQL的schema的特性可以轻松的实现计划和管理。</p>
+<p>Schema（不要和SQL单个表的schema搞混了）是PostgreSQL里的一个逻辑分组功能。每一个PostgreSQL数据库都有好几个schema，每一个schema都有一到多个表。表名在没个schema中都是唯一的，而不是每个数据库，默认情况下，PostgreSQL会把所有数据都放在一个叫“public”的schema中。</p>
+<p>在我们的系统中每个“逻辑”分片都是一个PostgreSQL schema， 每个分片的表（比如照片的“点赞”功能）都存在每个schema中。</p>
+<p>我们通过使用PL/PGSQL, PostgreSQL内部的编程语言，和PostgreSQL现有的自增功能来生成ID。</p>
+<p>每个ID都由下面几个部分组成：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">41位的毫秒级时间（用于产生41年的ID）</span><br><span class="line">13位用来表示逻辑分片的ID</span><br><span class="line">10位的自增序列，模上1024， 意味着每个分片每毫秒可以产生1024个ID</span><br></pre></td></tr></table></figure>
 
-<p>docker info</p>
-<p><code>docker info</code></p>
-<p>list image</p>
-<p><code>docker image ls</code> or <code>docker images</code></p>
-<p>list container</p>
-<p><code>docker container ls</code></p>
-<p><code>docker container ls --all</code> # all mode</p>
-<p><code>docker container ls -aq</code> # all in quite mode</p>
-<p>run image</p>
-<p><code>docker run hello-world</code></p>
-<p><code>docker run -d -p 6379:6379 redis</code></p>
-<p>login running container</p>
-<p><code>docker exec -it &lt;name&gt; bash</code></p>
+<p>下面通过一个例子说明：比如说现在是2011年的九月九日，我们的纪元是从2011年的一月一号开始。从新纪元开始到此有1387263000毫秒，那么我们把这个数字左移41位来填满ID的头。</p>
+<blockquote>
+<p>id = 1387263000 &lt;&lt;(64 – 41)</p>
+</blockquote>
+<p>接下来， 我们拿来我们准备把这个数据插入的分片ID；如果我们用户ID是31341， 这个分片的ID是 31341%2000 → 1341。 我们接下来把下面13为填满：</p>
+<blockquote>
+<p>id |= 1341 &lt;&lt; (64-41-13)</p>
+</blockquote>
+<p>最后， 我们用所剩的自增序列（每个schema中每个表中这个序列都是唯一的）来填满的后面的位数。 假设这张表中已经有了5000个ID； 我们下一个数据就是5001，我们把它模上1024得到：</p>
+<blockquote>
+<p>id |= （5001%1024）</p>
+</blockquote>
+<p>我们就得到了我们的ID， 我们把这个id作为insert中的RETURNING返回给应用层。</p>
+<p>下面是是实现以上过程的PL/PGSQL代码（这里用的schema是insta5）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">FUNCTION</span> insta5.next_id(<span class="keyword">OUT</span> <span class="keyword">result</span> <span class="built_in">bigint</span>) <span class="keyword">AS</span> $$</span><br><span class="line"><span class="keyword">DECLARE</span></span><br><span class="line">    our_epoch <span class="built_in">bigint</span> := <span class="number">1314220021721</span>;</span><br><span class="line">    seq_id bigint;</span><br><span class="line">    now_millis bigint;</span><br><span class="line">    shard_id int := 5;</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    <span class="keyword">SELECT</span> <span class="keyword">nextval</span>(<span class="string">'insta5.table_id_seq'</span>) %% <span class="number">1024</span> <span class="keyword">INTO</span> seq_id;</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="keyword">FLOOR</span>(<span class="keyword">EXTRACT</span>(EPOCH <span class="keyword">FROM</span> clock_timestamp()) * <span class="number">1000</span>) <span class="keyword">INTO</span> now_millis;</span><br><span class="line">    result := (now_millis - our_epoch) &lt;&lt; 23;</span><br><span class="line">    result := result | (shard_id &lt;&lt; 10);</span><br><span class="line">    result := result | (seq_id);</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line">$$ LANGUAGE PLPGSQL;</span><br></pre></td></tr></table></figure>
+
+<p>要生成表示执行下面的部分：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> insta5.our_table(</span><br><span class="line">    <span class="string">"id"</span> <span class="built_in">bigint</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> insta5.next_id(),</span><br><span class="line">    ... rest <span class="keyword">of</span> <span class="keyword">table</span> <span class="keyword">schema</span> ...</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>成了！我们得到了应用中唯一的主键（还有一个好处是，ID中包含了分片ID可以用来轻松映射）。我们已经把这个方法用在产品中，并且对结果感到非常满意。</p>
 
     </div>
 
@@ -298,7 +355,7 @@
       <footer class="post-footer">
           
           <div class="post-tags">
-              <a href="/tags/Docker/" rel="tag"><i class="fa fa-tag"></i> Docker</a>
+              <a href="/tags/Algorithm/" rel="tag"><i class="fa fa-tag"></i> Algorithm</a>
           </div>
 
         
@@ -307,13 +364,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2019/01/15/treenode/" rel="prev" title="二叉树">
-      <i class="fa fa-chevron-left"></i> 二叉树
+    <a href="/2020/05/29/tmux-tutorial/" rel="prev" title="Tmux 使用教程">
+      <i class="fa fa-chevron-left"></i> Tmux 使用教程
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2019/05/12/sqlalchemy-usage/" rel="next" title="Sqlalchemy 基本用法">
-      Sqlalchemy 基本用法 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -373,6 +427,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#现有的解决方案"><span class="nav-number">1.</span> <span class="nav-text">现有的解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#由Web应用层生成ID"><span class="nav-number">1.1.</span> <span class="nav-text">由Web应用层生成ID</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过单独的服务产生ID"><span class="nav-number">1.2.</span> <span class="nav-text">通过单独的服务产生ID</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库票据（DB-Ticket）服务器"><span class="nav-number">1.3.</span> <span class="nav-text">数据库票据（DB Ticket）服务器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Instagram-的方案"><span class="nav-number">2.</span> <span class="nav-text">Instagram 的方案</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -401,7 +456,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

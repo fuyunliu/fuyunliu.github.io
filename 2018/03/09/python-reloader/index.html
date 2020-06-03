@@ -29,7 +29,7 @@
 <meta property="og:description" content="Django 和 Flask 应用开启 debug 模式之后都能检测代码的变化然后自动重载，于是去找实现代码，发现 Flask 是用的 werkzeug 库里面的功能，而 Django 的不好用于自己写的脚本，因为和 Django 应用结合了。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2018-03-09T09:51:08.000Z">
-<meta property="article:modified_time" content="2018-10-19T15:58:11.250Z">
+<meta property="article:modified_time" content="2020-05-29T09:09:37.895Z">
 <meta property="article:author" content="听听那冷雨">
 <meta property="article:tag" content="Python3">
 <meta name="twitter:card" content="summary">
@@ -222,7 +222,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2018-10-19 23:58:11" itemprop="dateModified" datetime="2018-10-19T23:58:11+08:00">2018-10-19</time>
+                <time title="修改时间：2020-05-29 17:09:37" itemprop="dateModified" datetime="2020-05-29T17:09:37+08:00">2020-05-29</time>
               </span>
             <span class="post-meta-item post-meta-item-category">
               <span class="post-meta-item-icon">
@@ -271,13 +271,13 @@
 
 <!-- toc -->
 
-<p>下面是 <code>werkzeug</code> 中的 <code>_reloader</code> 模块中的 <code>run_with_reloader</code> 函数。</p>
+<p>下面是 werkzeug 中的 _reloader 模块中的 run_with_reloader 函数。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_with_reloader</span><span class="params">(main_func, extra_files=None, interval=<span class="number">1</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">                      reloader_type=<span class="string">'auto'</span>)</span>:</span></span><br><span class="line">    <span class="string">"""Run the given function in an independent python interpreter."""</span></span><br><span class="line">    <span class="keyword">import</span> signal</span><br><span class="line">    reloader = reloader_loops[reloader_type](extra_files, interval)</span><br><span class="line">    signal.signal(signal.SIGTERM, <span class="keyword">lambda</span> *args: sys.exit(<span class="number">0</span>))</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">if</span> os.environ.get(<span class="string">'WERKZEUG_RUN_MAIN'</span>) == <span class="string">'true'</span>:</span><br><span class="line">            t = threading.Thread(target=main_func, args=())</span><br><span class="line">            t.setDaemon(<span class="literal">True</span>)</span><br><span class="line">            t.start()</span><br><span class="line">            reloader.run()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.exit(reloader.restart_with_reloader())</span><br><span class="line">    <span class="keyword">except</span> KeyboardInterrupt:</span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
 
 <p>用法如下</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        print(<span class="string">"hello, world!"</span>)</span><br><span class="line">        time.sleep(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    run_with_reloader(main)</span><br></pre></td></tr></table></figure>
 
-<p>但是执行函数不能传参，修改 <code>run_with_reloader</code> 如下</p>
+<p>但是执行函数不能传参，修改 run_with_reloader 如下</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_with_reloader</span><span class="params">(main_func, args=<span class="params">()</span>, kwargs=None,</span></span></span><br><span class="line"><span class="function"><span class="params">                      extra_files=None, interval=<span class="number">1</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">                      reloader_type=<span class="string">'auto'</span>)</span>:</span></span><br><span class="line">    <span class="string">"""Run the given function in an independent python interpreter."""</span></span><br><span class="line">    <span class="keyword">import</span> os</span><br><span class="line">    <span class="keyword">import</span> sys</span><br><span class="line">    <span class="keyword">import</span> signal</span><br><span class="line">    <span class="keyword">import</span> threading</span><br><span class="line">    <span class="keyword">from</span> werkzeug._reloader <span class="keyword">import</span> reloader_loops</span><br><span class="line">    reloader = reloader_loops[reloader_type](extra_files, interval)</span><br><span class="line">    signal.signal(signal.SIGTERM, <span class="keyword">lambda</span> *args: sys.exit(<span class="number">0</span>))</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">if</span> os.environ.get(<span class="string">'WERKZEUG_RUN_MAIN'</span>) == <span class="string">'true'</span>:</span><br><span class="line">            t = threading.Thread(target=main_func, args=args, kwargs=kwargs)</span><br><span class="line">            t.setDaemon(<span class="literal">True</span>)</span><br><span class="line">            t.start()</span><br><span class="line">            reloader.run()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            sys.exit(reloader.restart_with_reloader())</span><br><span class="line">    <span class="keyword">except</span> KeyboardInterrupt:</span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
 
 <p>然后就能传参了</p>
@@ -392,7 +392,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
