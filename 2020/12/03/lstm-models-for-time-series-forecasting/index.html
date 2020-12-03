@@ -25,6 +25,10 @@
   
 
   
+    <meta name="description" content="
+
+调节内容1.输出维度 units2.时间步长 timesteps3.激活函数 activation4.增加特征：增长率5.增加特征：日期属性6.预测增长率7.单层 stateful LSTM8.双层 stateful LSTM9.批数据大小 batch_size10.训练循环次数 epochs11.原序列对数...">
+  
 
   <!-- feed -->
   
@@ -363,7 +367,11 @@
 
 
   
-  <h2 id="调节内容"><a href="#调节内容" class="headerlink" title="调节内容"></a>调节内容</h2><p>1.输出维度 units<br>2.时间步长 timesteps<br>3.激活函数 activation<br>4.增加特征：增长率<br>5.增加特征：日期属性<br>6.预测增长率<br>7.单层 stateful LSTM<br>8.双层 stateful LSTM<br>9.批数据大小 batch_size<br>10.训练循环次数 epochs<br>11.原序列对数<br>12.原序列差分<br>13.归一化值域 feature_range<br>14.Bidirectional LSTM<br>15.CNN LSTM<br>16.ConvLSTM</p>
+  <!-- toc -->
+
+<h2 id="调节内容"><a href="#调节内容" class="headerlink" title="调节内容"></a>调节内容</h2><p>1.输出维度 units<br>2.时间步长 timesteps<br>3.激活函数 activation<br>4.增加特征：增长率<br>5.增加特征：日期属性<br>6.预测增长率<br>7.单层 stateful LSTM<br>8.双层 stateful LSTM<br>9.批数据大小 batch_size<br>10.训练循环次数 epochs<br>11.原序列对数<br>12.原序列差分<br>13.归一化值域 feature_range<br>14.Bidirectional LSTM<br>15.CNN LSTM<br>16.ConvLSTM</p>
+<a id="more"></a>
+
 <h2 id="原始数据集"><a href="#原始数据集" class="headerlink" title="原始数据集"></a>原始数据集</h2><p><img src="https://tcs.teambition.net/storage/111u30d262a5d03aa28b73e47c8ecb8d617e?Signature=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJRCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9hcHBJZCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9vcmdhbml6YXRpb25JZCI6IiIsImV4cCI6MTYwNzU4NjAxMCwiaWF0IjoxNjA2OTgxMjEwLCJyZXNvdXJjZSI6Ii9zdG9yYWdlLzExMXUzMGQyNjJhNWQwM2FhMjhiNzNlNDdjOGVjYjhkNjE3ZSJ9.3j8TYV2pezkNW3xLFLBzDzaRiFJvsgXG4tzKCIbtvpc&download=image.png" class="lazyload" data-srcset="https://tcs.teambition.net/storage/111u30d262a5d03aa28b73e47c8ecb8d617e?Signature=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJRCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9hcHBJZCI6IjU5Mzc3MGZmODM5NjMyMDAyZTAzNThmMSIsIl9vcmdhbml6YXRpb25JZCI6IiIsImV4cCI6MTYwNzU4NjAxMCwiaWF0IjoxNjA2OTgxMjEwLCJyZXNvdXJjZSI6Ii9zdG9yYWdlLzExMXUzMGQyNjJhNWQwM2FhMjhiNzNlNDdjOGVjYjhkNjE3ZSJ9.3j8TYV2pezkNW3xLFLBzDzaRiFJvsgXG4tzKCIbtvpc&download=image.png" srcset="data:image/png;base64,666"></p>
 <h2 id="原始序列"><a href="#原始序列" class="headerlink" title="原始序列"></a>原始序列</h2><h3 id="超参数"><a href="#超参数" class="headerlink" title="超参数"></a>超参数</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 定义超参数</span><br><span class="line">batch_size = 128          # 批数据大小</span><br><span class="line">epochs = 50               # 实验训练次数</span><br><span class="line">units = 64                # 状态的输出维度</span><br><span class="line">features = 1              # 最终输出维度</span><br><span class="line">timesteps = 3             # 时间步长</span><br><span class="line">feature_range = (0, 1)    # 归一化值域</span><br><span class="line">ratio = 0.8               # 数据集分割比例</span><br></pre></td></tr></table></figure>
 
@@ -581,7 +589,7 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-03T15:59:30+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-03T16:08:25+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：2020年12月3日</p>
