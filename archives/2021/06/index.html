@@ -21,7 +21,7 @@
 
   <!-- 页面元数据 -->
   
-  <title>归档：2021/4 - 听听那冷雨</title>
+  <title>归档：2021/6 - 听听那冷雨</title>
   
 
   
@@ -322,8 +322,8 @@
   
     
     <h2 class="article-title" >
-      <a href="/2021/04/17/session-cookie-jwt/">
-        Session 、Cookie 和 JWT 详解
+      <a href="/2021/06/08/log-anomaly-detection/">
+        基于 LSTM 深度学习模型的日志异常检测
       </a>
     </h2>
   
@@ -331,20 +331,14 @@
     
       <!-- toc -->
 
-<h2 id="什么是-Cookie"><a href="#什么是-Cookie" class="headerlink" title="什么是 Cookie"></a>什么是 Cookie</h2><p>HTTP Cookie（也叫 Web Cookie 或浏览器 Cookie）是服务器发送到用户浏览器并保存在本地的一小块数据，它会在浏览器下次向同一服务器再发起请求时被携带并发送到服务器上。通常，它用于告知服务端两个请求是否来自同一浏览器，如保持用户的登录状态。Cookie 使基于无状态的HTTP协议记录稳定的状态信息成为了可能。</p>
-<p>Cookie 主要用于以下三个方面：</p>
-<ol>
-<li>会话状态管理（如用户登录状态、购物车、游戏分数或其它需要记录的信息）</li>
-<li>个性化设置（如用户自定义设置、主题等）</li>
-<li>浏览器行为跟踪（如跟踪分析用户行为等）</li>
-</ol>
+<h2 id="日志模式识别"><a href="#日志模式识别" class="headerlink" title="日志模式识别"></a>日志模式识别</h2><h3 id="日志样例"><a href="#日志样例" class="headerlink" title="日志样例"></a>日志样例</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">2021-03-11 09:23:17,195 [OCKey:HlTOgWeM-LYFkTMn2wsXcEd] DEBUG com.dawninfotek.base.security.WebAppSafeGuard - BaseWebAppSafeGuard.class::key = beneAcctNo4 value = 1</span><br><span class="line">2021-03-11 09:23:17,849 [OCKey:zQXeCzqsWdY9_GliHIoAIpI] DEBUG com.dawninfotek.base.action.BaseDispatchAction - com.dawninfotek.easybanking.web.pr.olbfinance.polbfinancemyfinancenew.POLBFinanceMyFinanceAction::Base BaseDispatchAction - link6::37003747</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::Getting a connection from dataSource</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::got connection com.ibm.ws.rsadapter.jdbc.WSJdbcConnection@3bfa1e18 from dataSource: auto Commit = false</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Connection</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Preparing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Executing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Parameters: [42300205]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Types: [java.lang.String]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.easybanking.base.process.EasyBankingProcessManager - com.dawninfotek.easybanking.base.process.EasyBankingProcessManager::Start to commit transaction for DAC:EasyBankingSample</span><br></pre></td></tr></table></figure>
     
   </div>
   
     <div class='meta-v3' line_style='solid'>
       <div>
         
-        <time>2021-04-17</time>
+        <time>2021-06-08</time>
         
           <span class="dot"></span>
           <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
@@ -352,7 +346,7 @@
       </div>
       
         <div>
-          <a class='readmore' href='/2021/04/17/session-cookie-jwt/'>
+          <a class='readmore' href='/2021/06/08/log-anomaly-detection/'>
             阅读全文
           </a>
         </div>

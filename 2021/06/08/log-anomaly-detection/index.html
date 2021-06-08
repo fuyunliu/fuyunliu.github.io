@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head hexo-theme='https://github.com/volantis-x/hexo-theme-volantis/tree/4.1.6'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  <link rel='dns-prefetch' href='https://cdn.jsdelivr.net'>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+  <title>基于 LSTM 深度学习模型的日志异常检测 - 听听那冷雨</title>
+  
+    <meta name="keywords" content="LSTM,Drain3,FastText,HanLP">
+  
+
+  
+    <meta name="description" content="
+
+日志模式识别日志样例123456789102021-03-11 09:23:17,195 [OCKey:HlTOgWeM-LYFkTMn2wsXcEd] DEBUG com.dawninfotek.base.security.WebAppSafeGuard - BaseWebAppSafeGuard.clas...">
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  
+    <link rel="shortcut icon" type='image/x-icon' href="https://cdn.jsdelivr.net/gh/xaoxuu/assets@master/favicon/favicon.ico">
+  
+
+  <!-- import link -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/first.css">
+
+  
+
+  
+  <link rel="stylesheet" href="/css/style.css" media="print" onload="this.media='all';this.onload=null">
+  <noscript><link rel="stylesheet" href="/css/style.css"></noscript>
+  
+
+  <script id="loadcss"></script>
+
+</head>
+
+<body>
+  
+
+<header id="l_header" class="l_header auto shadow blur show" style='opacity: 0' >
+  <div class='container'>
+  <div id='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h m-phone' id="pjax-header-nav-list">
+        <li><a id="s-comment" class="fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a id="s-toc" class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+            <i class='fas fa-burn'></i>
+          
+          
+            No One
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h m-pc'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-blog fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="menuitem flat-box header toggle-mode-btn">
+                  <i class='fas fa-moon fa-fw'></i>暗黑模式
+                </a>
+              <li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h m-phone'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-blog fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/categories
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/tags
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box faa-parent animated-hover" href=/archives
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box header toggle-mode-btn">
+                  <i class='fas fa-moon fa-fw'></i>暗黑模式
+                </a>
+              <li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+  <div id="l_body">
+    <div id="l_cover">
+  
+    
+        <div id="full" class='cover-wrapper post dock' style="display: none;">
+          
+            <div class='cover-bg lazyload placeholder' data-bg="https://cdn.jsdelivr.net/gh/volantis-x/cdn-wallpaper-minimalist/2020/033.jpg"></div>
+          
+          <div class='cover-body'>
+  <div class='top'>
+    
+    
+      <p class="title">听听那冷雨</p>
+    
+    
+      <p class="subtitle">No one write here</p>
+    
+  </div>
+  <div class='bottom'>
+    <div class='menu navigation'>
+      <div class='list-h'>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+          <div id="scroll-down" style="display: none;"><i class="fa fa-chevron-down scroll-down-effects"></i></div>
+        </div>
+    
+  
+  </div>
+
+    <div id='safearea'>
+      <div class='body-wrapper' id="pjax-container">
+        
+
+<div class='l_main'>
+  <article class="article post white-box reveal md shadow article-type-post" id="post" itemscope itemprop="blogPost">
+  
+
+
+  
+  <div class="article-meta" id="top">
+    
+    
+    
+      <h1 class="title">
+        基于 LSTM 深度学习模型的日志异常检测
+      </h1>
+      <div class='new-meta-box'>
+        
+          
+            
+<div class='new-meta-item author'>
+  <a class='author' href="/" rel="nofollow">
+    <img no-lazy src="/images/avatar.jpg">
+    <p>听听那冷雨</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class='new-meta-item category'>
+    <a class='notlink'>
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：2021年6月8日</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class="new-meta-item browse leancloud">
+    <a class='notlink'>
+      
+      <div id="lc-pv" data-title="基于 LSTM 深度学习模型的日志异常检测" data-path="/2021/06/08/log-anomaly-detection/">
+        <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
+        <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+        次浏览
+      </div>
+    </a>
+  </div>
+
+
+          
+        
+      </div>
+    
+  </div>
+
+
+  
+  <!-- toc -->
+
+<h2 id="日志模式识别"><a href="#日志模式识别" class="headerlink" title="日志模式识别"></a>日志模式识别</h2><h3 id="日志样例"><a href="#日志样例" class="headerlink" title="日志样例"></a>日志样例</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">2021-03-11 09:23:17,195 [OCKey:HlTOgWeM-LYFkTMn2wsXcEd] DEBUG com.dawninfotek.base.security.WebAppSafeGuard - BaseWebAppSafeGuard.class::key = beneAcctNo4 value = 1</span><br><span class="line">2021-03-11 09:23:17,849 [OCKey:zQXeCzqsWdY9_GliHIoAIpI] DEBUG com.dawninfotek.base.action.BaseDispatchAction - com.dawninfotek.easybanking.web.pr.olbfinance.polbfinancemyfinancenew.POLBFinanceMyFinanceAction::Base BaseDispatchAction - link6::37003747</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::Getting a connection from dataSource</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::got connection com.ibm.ws.rsadapter.jdbc.WSJdbcConnection@3bfa1e18 from dataSource: auto Commit = false</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Connection</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Preparing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Executing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Parameters: [42300205]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Types: [java.lang.String]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.easybanking.base.process.EasyBankingProcessManager - com.dawninfotek.easybanking.base.process.EasyBankingProcessManager::Start to commit transaction for DAC:EasyBankingSample</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h3 id="日志模式"><a href="#日志模式" class="headerlink" title="日志模式"></a>日志模式</h3><p>使用 Drain3 算法对日志进行模式提取，共提取得到 190 条日志模式，只展示部分结果。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">1</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">1</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">62086</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;MODULE&gt; key &lt;*&gt; value&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;modul key valu&quot;</span>&#125;</span><br><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">2</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">2</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">22856</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;CLASS&gt; key &lt;KEY&gt; value &lt;VALUE&gt;&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;class key key valu valu&quot;</span>&#125;</span><br><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">3</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">3</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">2942</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;MODULE&gt; Base BaseDispatchAction &lt;*&gt; &lt;*&gt;&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;modul base basedispatchact&quot;</span>&#125;</span><br><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">3</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">53</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">147</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;MODULE&gt; Base BaseDispatchAction &lt;*&gt;&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;modul base basedispatchact&quot;</span>&#125;</span><br><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">4</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">4</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">16820</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;MODULE&gt; Getting a connection from dataSource&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;modul connect datasourc&quot;</span>&#125;</span><br><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">5</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">5</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">16820</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;MODULE&gt; got connection com.ibm.ws.rsadapter.jdbc.WSJdbcConnection &lt;*&gt; from dataSource auto Commit false&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;modul connect ibm rsadapt jdbc wsjdbcconnect datasourc auto commit fals&quot;</span>&#125;</span><br><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">6</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">6</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">23956</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;CONN&gt; Connection&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;conn connect&quot;</span>&#125;</span><br><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">7</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">7</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">22323</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;CONN&gt; Preparing Statement &lt;SQL&gt;&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;conn prepar statement sql&quot;</span>&#125;</span><br><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">8</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">8</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">22323</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;PSTM&gt; Executing Statement &lt;SQL&gt;&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;pstm execut statement sql&quot;</span>&#125;</span><br><span class="line">&#123;<span class="attr">&quot;group_id&quot;</span>: <span class="number">9</span>, <span class="attr">&quot;cluster_id&quot;</span>: <span class="number">9</span>, <span class="attr">&quot;cluster_size&quot;</span>: <span class="number">22322</span>, <span class="attr">&quot;is_abnormal&quot;</span>: <span class="literal">false</span>, <span class="attr">&quot;template_mined&quot;</span>: <span class="string">&quot;&lt;PSTM&gt; Parameters &lt;PARAMS&gt;&quot;</span>, <span class="attr">&quot;template_tokenize&quot;</span>: <span class="string">&quot;pstm paramet param&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>字段解释</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">group_id: 模式分组 ID，使用 Levenshtein 计算相似度，阈值为 0.8，大于等于阈值的模式会被分配到相同 group_id 之下。</span><br><span class="line">cluster_id：模式 ID。</span><br><span class="line">cluster_size: 模式匹配到的日志数量。</span><br><span class="line">is_abnormal: 根据通用的异常关键字，预判模式的异常。</span><br><span class="line">template_mined: 学习到的日志模式字符串。</span><br><span class="line">template_tokenize: 日志模式字符串经过一系列处理得到的字符串，后续日志模式向量计算基于该字符串。</span><br></pre></td></tr></table></figure>
+
+<p>预置的通用异常关键字</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">abnormal_chars = [<span class="string">&#x27;error&#x27;</span>, <span class="string">&#x27;fail&#x27;</span>, <span class="string">&#x27;failed&#x27;</span>, <span class="string">&#x27;exception&#x27;</span>, <span class="string">&#x27;invalid&#x27;</span>, <span class="string">&#x27;missing&#x27;</span>, <span class="string">&#x27;duplicate&#x27;</span>, <span class="string">&#x27;unable&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>日志模式字符串处理过程</p>
+<h4 id="提取中英文单词"><a href="#提取中英文单词" class="headerlink" title="提取中英文单词"></a>提取中英文单词</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_lower_alphabet</span>(<span class="params">char</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;小写字母&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;\u0061&#x27;</span> &lt;= char &lt;= <span class="string">&#x27;\u007A&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_upper_alphabet</span>(<span class="params">char</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;大写字母&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;\u0041&#x27;</span> &lt;= char &lt;= <span class="string">&#x27;\u005A&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_alphabet</span>(<span class="params">char</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;英文字母&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> is_lower_alphabet(char) <span class="keyword">or</span> is_upper_alphabet(char)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_chinese</span>(<span class="params">char</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;中文&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;\u4e00&#x27;</span> &lt;= char &lt;= <span class="string">&#x27;\u9fff&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">segment</span>(<span class="params">text</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;中英文分词&quot;&quot;&quot;</span></span><br><span class="line">    chars = []</span><br><span class="line">    <span class="keyword">for</span> char <span class="keyword">in</span> text:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> is_alphabet(char) <span class="keyword">and</span> <span class="keyword">not</span> is_chinese(char)::</span><br><span class="line">            <span class="keyword">if</span> chars:</span><br><span class="line">                word = <span class="string">&#x27;&#x27;</span>.join(chars)</span><br><span class="line">                <span class="keyword">yield</span> word</span><br><span class="line">                chars = []</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            chars.append(char)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> chars:</span><br><span class="line">        word = <span class="string">&#x27;&#x27;</span>.join(chars)</span><br><span class="line">        <span class="keyword">yield</span> word</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="中文分词"><a href="#中文分词" class="headerlink" title="中文分词"></a>中文分词</h4><p>如果提取得到的单词是中文，进一步将中文进行分词</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hanlp</span><br><span class="line">HanLP = hanlp.load(hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_SMALL_ZH)</span><br><span class="line"></span><br><span class="line">tokens = HanLP(<span class="string">&#x27;读取限流控制参数值&#x27;</span>, tasks=<span class="string">&#x27;tok/fine&#x27;</span>)[<span class="string">&#x27;tok/fine&#x27;</span>]  <span class="comment"># [&#x27;读取&#x27;, &#x27;限流&#x27;, &#x27;控制&#x27;, &#x27;参数值&#x27;]</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="统一转化为小写"><a href="#统一转化为小写" class="headerlink" title="统一转化为小写"></a>统一转化为小写</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">word = <span class="built_in">str</span>.lower(word)</span><br></pre></td></tr></table></figure>
+
+<h4 id="词干提取"><a href="#词干提取" class="headerlink" title="词干提取"></a>词干提取</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> nltk.stem.snowball <span class="keyword">import</span> SnowballStemmer</span><br><span class="line">stemmer= SnowballStemmer(<span class="string">&#x27;english&#x27;</span>)</span><br><span class="line"></span><br><span class="line">word = stemmer.stem(<span class="string">&#x27;Connection&#x27;</span>)  <span class="comment"># connect</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="词形还原"><a href="#词形还原" class="headerlink" title="词形还原"></a>词形还原</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> nltk.stem <span class="keyword">import</span> WordNetLemmatizer</span><br><span class="line">lemmatizer = WordNetLemmatizer()</span><br><span class="line"></span><br><span class="line">word = lemmatizer.lemmatize(<span class="string">&#x27;rooms&#x27;</span>)  <span class="comment"># room</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="去停用词"><a href="#去停用词" class="headerlink" title="去停用词"></a>去停用词</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 英文停用词: https://github.com/stopwords-iso/stopwords-en</span></span><br><span class="line"><span class="comment"># 中文停用词: https://github.com/goto456/stopwords</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pathlib <span class="keyword">import</span> Path</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">load_stopwords</span>():</span></span><br><span class="line">    english_path = Path(__file__).parent / <span class="string">&#x27;stopwords&#x27;</span> / <span class="string">&#x27;english&#x27;</span></span><br><span class="line">    chinese_path = Path(__file__).parent / <span class="string">&#x27;stopwords&#x27;</span> / <span class="string">&#x27;chinese&#x27;</span></span><br><span class="line">    <span class="keyword">with</span> english_path.<span class="built_in">open</span>(<span class="string">&#x27;rt&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> en, chinese_path.<span class="built_in">open</span>(<span class="string">&#x27;rt&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> zh:</span><br><span class="line">        stopwords = &#123;line.strip() <span class="keyword">for</span> line <span class="keyword">in</span> en&#125; | &#123;line.strip() <span class="keyword">for</span> line <span class="keyword">in</span> zh&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> stopwords</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="模式向量计算"><a href="#模式向量计算" class="headerlink" title="模式向量计算"></a>模式向量计算</h2><h3 id="TF-IDF-计算"><a href="#TF-IDF-计算" class="headerlink" title="TF-IDF 计算"></a>TF-IDF 计算</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取日志模版</span></span><br><span class="line">template = pd.read_csv(<span class="string">&#x27;easybanking.csv&#x27;</span>)</span><br><span class="line">template.fillna(<span class="string">&#x27;&#x27;</span>, inplace=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># TF-IDF 计算</span></span><br><span class="line">corpus = template[<span class="string">&#x27;template_tokenize&#x27;</span>].to_list()</span><br><span class="line">vectorizer = TfidfVectorizer()</span><br><span class="line">X = vectorizer.fit_transform(corpus)</span><br><span class="line"></span><br><span class="line">xarr = X.toarray()</span><br><span class="line">words = vectorizer.get_feature_names()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="词向量计算"><a href="#词向量计算" class="headerlink" title="词向量计算"></a>词向量计算</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> fasttext</span><br><span class="line">fasttext.FastText.eprint = <span class="keyword">lambda</span> x: <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">ften = fasttext.load_model(<span class="string">&#x27;cc.en.300.bin&#x27;</span>)</span><br><span class="line">ftzh = fasttext.load_model(<span class="string">&#x27;cc.zh.300.bin&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WordVectorDict</span>(<span class="params"><span class="built_in">dict</span></span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__missing__</span>(<span class="params">self, key</span>):</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">any</span>(<span class="built_in">map</span>(is_chinese, key)):</span><br><span class="line">            <span class="keyword">return</span> ftzh.get_word_vector(key)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> ften.get_word_vector(key)</span><br><span class="line"></span><br><span class="line">word_vectors = WordVectorDict()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="模式向量"><a href="#模式向量" class="headerlink" title="模式向量"></a>模式向量</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 模式向量计算</span></span><br><span class="line">template_vectors = &#123;&#125;</span><br><span class="line"><span class="keyword">for</span> row, arr <span class="keyword">in</span> <span class="built_in">zip</span>(template.to_dict(orient=<span class="string">&#x27;records&#x27;</span>), xarr):</span><br><span class="line">    lookup = defaultdict(<span class="built_in">int</span>, <span class="built_in">zip</span>(words, arr))</span><br><span class="line">    tokens = row[<span class="string">&#x27;template_tokenize&#x27;</span>].split()</span><br><span class="line">    tv = np.zeros(<span class="number">300</span>)</span><br><span class="line">    <span class="keyword">for</span> token <span class="keyword">in</span> tokens:</span><br><span class="line">        w = lookup[token]  <span class="comment"># TF-IDF</span></span><br><span class="line">        v = word_vectors[token]  <span class="comment"># 词向量</span></span><br><span class="line">        wv = w * v</span><br><span class="line">        tv += wv</span><br><span class="line">    tv = tv <span class="keyword">if</span> <span class="built_in">len</span>(tokens) == <span class="number">0</span> <span class="keyword">else</span> tv / <span class="built_in">len</span>(tokens)</span><br><span class="line">    template_vectors[row[<span class="string">&#x27;cluster_id&#x27;</span>]] = tv</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="模式相似度"><a href="#模式相似度" class="headerlink" title="模式相似度"></a>模式相似度</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.metrics.pairwise <span class="keyword">import</span> cosine_similarity</span><br><span class="line"></span><br><span class="line">cs = cosine_similarity(template_vector_1.reshape(<span class="number">1</span>,-<span class="number">1</span>), template_vector_2.reshape(<span class="number">1</span>,-<span class="number">1</span>))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="评估指标"><a href="#评估指标" class="headerlink" title="评估指标"></a>评估指标</h2><ol>
+<li>TP：True Positive，被判定为正样本，事实上也是证样本。</li>
+<li>TN：True Negative，被判定为负样本，事实上也是负样本。</li>
+<li>FP：False Positive，被判定为正样本，但事实上是负样本。</li>
+<li>FN：False Negative，被判定为负样本，但事实上是正样本。</li>
+<li>precesion：查准率，precesion = TP/(TP+FP)。</li>
+<li>recall：查全率，recall = TP/(TP+FN)。</li>
+</ol>
+<h2 id="基于模式概率分布的异常检测"><a href="#基于模式概率分布的异常检测" class="headerlink" title="基于模式概率分布的异常检测"></a>基于模式概率分布的异常检测</h2><p>在没有得到日志模版向量表示之前，使用模版的索引对所有日志模版进行 One-Hot 编码，所以对于每一行日志都有一个其对应的模版编码，也可以叫模版概率分布。</p>
+<p>对原始日志处理成模版的概率分布之后，我们可以训练一个多分类模型，预测下一个日志的模版概率分布，如果真实日志的模版不在预测的 topK 中，则认为日志是异常的。</p>
+<h3 id="构造数据集"><a href="#构造数据集" class="headerlink" title="构造数据集"></a>构造数据集</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> label_binarize</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_window_dataset</span>(<span class="params">log_parsed_path, template_path, window_size, split_ratio=<span class="number">0.8</span></span>):</span></span><br><span class="line"></span><br><span class="line">    log_parsed = pd.read_csv(log_parsed_path)</span><br><span class="line">    templates = pd.read_csv(template_path)[<span class="string">&#x27;cluster_id&#x27;</span>].to_list()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fn</span>(<span class="params">dataset, look_back, look_interval=<span class="number">0</span>, look_forward=<span class="number">1</span></span>):</span></span><br><span class="line">        x, y = [], []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(dataset)-look_back-look_interval-look_forward):</span><br><span class="line">            back = dataset[i:i+look_back,]</span><br><span class="line">            forward = dataset[i+look_back+look_interval:i+look_back+look_interval+look_forward,]</span><br><span class="line">            back_x = label_binarize(back, classes=templates)</span><br><span class="line">            forward_y = label_binarize(forward, classes=templates)[<span class="number">0</span>]</span><br><span class="line">            x.append(back_x)</span><br><span class="line">            y.append(forward_y)</span><br><span class="line">        <span class="keyword">return</span> np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    dataset = log_parsed[[<span class="string">&#x27;cluster_id&#x27;</span>]].values</span><br><span class="line">    x, y = fn(dataset, window_size)</span><br><span class="line"></span><br><span class="line">    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=split_ratio, shuffle=<span class="literal">False</span>, stratify=<span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">return</span> (x_train, y_train), (x_test, y_test)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="模型定义"><a href="#模型定义" class="headerlink" title="模型定义"></a>模型定义</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> layers, models, optimizers</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_model</span>(<span class="params">input_shape, num_classes</span>):</span></span><br><span class="line">    inputs = layers.Input(shape=input_shape)</span><br><span class="line"></span><br><span class="line">    x = layers.Bidirectional(layers.LSTM(<span class="number">64</span>, return_sequences=<span class="literal">True</span>))(inputs)</span><br><span class="line">    x = layers.Bidirectional(layers.LSTM(<span class="number">64</span>))(x)</span><br><span class="line"></span><br><span class="line">    outputs = layers.Dense(num_classes, activation=<span class="string">&#x27;softmax&#x27;</span>)(x)</span><br><span class="line"></span><br><span class="line">    model = models.Model(inputs=inputs, outputs=outputs)</span><br><span class="line">    model.<span class="built_in">compile</span>(loss=<span class="string">&#x27;categorical_crossentropy&#x27;</span>, optimizer=optimizers.Adam(), metrics=[<span class="string">&#x27;accuracy&#x27;</span>])</span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="模型训练"><a href="#模型训练" class="headerlink" title="模型训练"></a>模型训练</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 构造数据集</span></span><br><span class="line">n_candidates = <span class="number">10</span></span><br><span class="line">window_size = <span class="number">10</span></span><br><span class="line">log_parsed_path = <span class="string">&#x27;easybanking_parsed_1w.csv&#x27;</span></span><br><span class="line">template_path = <span class="string">&#x27;easybanking_template.csv&#x27;</span></span><br><span class="line">(x_train, y_train), (x_test, y_test) = create_window_dataset(log_parsed_path, template_path, window_size)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义模型</span></span><br><span class="line">num_classes = y_train.shape[<span class="number">1</span>]</span><br><span class="line">input_shape = (x_train.shape[<span class="number">1</span>], x_train.shape[<span class="number">2</span>])</span><br><span class="line">model = build_model(input_shape, num_classes)</span><br><span class="line">model.summary()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型训练</span></span><br><span class="line">call_backs = [</span><br><span class="line">    callbacks.ModelCheckpoint(<span class="string">&quot;best_model.h5&quot;</span>, save_best_only=<span class="literal">True</span>, monitor=<span class="string">&quot;val_loss&quot;</span>),</span><br><span class="line">    callbacks.ReduceLROnPlateau(monitor=<span class="string">&quot;val_loss&quot;</span>, factor=<span class="number">0.5</span>, patience=<span class="number">20</span>, min_lr=<span class="number">0.0001</span>),</span><br><span class="line">    callbacks.EarlyStopping(monitor=<span class="string">&quot;val_loss&quot;</span>, patience=<span class="number">50</span>, verbose=<span class="number">1</span>),</span><br><span class="line">]</span><br><span class="line">history = model.fit(x_train, y_train, batch_size=<span class="number">32</span>, epochs=<span class="number">20</span>, callbacks=call_backs, validation_split=<span class="number">0.2</span>, shuffle=<span class="literal">True</span>, verbose=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 评估模型</span></span><br><span class="line">best_model = models.load_model(<span class="string">&quot;best_model.h5&quot;</span>)</span><br><span class="line">y_pred = best_model.predict(x_test)</span><br><span class="line">y_true = np.argmax(y_test, axis=<span class="number">1</span>)</span><br><span class="line">y_pred = np.argmax(y_pred, axis=<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 我们只知道日志模式预测的正确与否，但是不知道真实这条日志是否为异常，所以无法计算 TP、TN、FP 和 FN。</span></span><br><span class="line"><span class="comment"># 简单起见计算全局准确率和召回率，这里只取 topK K = 1。真正需要提高准确率等需要在模型参数和日志数据及其处理等方面调节。</span></span><br><span class="line">precision, recall, f1, _ = precision_recall_fscore_support(y_true, y_pred, average=<span class="string">&#x27;micro&#x27;</span>)</span><br><span class="line"><span class="comment"># (0.7737737737737738, 0.7737737737737738, 0.7737737737737739, None)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ol>
+<li>该方案对日志模板进行编码时只使用模板索引，这可能导致丢失有价值的信息，因为模板索引不能揭示日志的语义关系。</li>
+<li>真实系统不断升级和更新，日志的模式可能会相应地漂移，该方案难以应付不断变化的、有噪声的日志数据。</li>
+</ol>
+<h2 id="基于有监督二分类的异常检测"><a href="#基于有监督二分类的异常检测" class="headerlink" title="基于有监督二分类的异常检测"></a>基于有监督二分类的异常检测</h2><p>我们得到了日志模版的向量表示，如果我们的数据集被人工标注了异常，我们很容易训练一个二分类模型，直接输出异常与否，由于应用日志没有异常标注，所以此方案做不了，为了实验可以使用公开的 HDFS 日志，这份日志有异常标注。</p>
+<h3 id="构造数据集-1"><a href="#构造数据集-1" class="headerlink" title="构造数据集"></a>构造数据集</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_label_dataset</span>(<span class="params">log_parsed_path, template_path, split_ratio=<span class="number">0.8</span></span>):</span></span><br><span class="line">    <span class="keyword">import</span> fasttext</span><br><span class="line">    fasttext.FastText.eprint = <span class="keyword">lambda</span> x: <span class="literal">None</span></span><br><span class="line">    <span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer</span><br><span class="line"></span><br><span class="line">    ften = fasttext.load_model(<span class="string">&#x27;/Users/fuyun/nltk_data/cc.en.300.bin&#x27;</span>)</span><br><span class="line">    ftzh = fasttext.load_model(<span class="string">&#x27;/Users/fuyun/nltk_data/cc.zh.300.bin&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">WordVectorDict</span>(<span class="params"><span class="built_in">dict</span></span>):</span></span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">__missing__</span>(<span class="params">self, key</span>):</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">any</span>(<span class="built_in">map</span>(is_chinese, key)):</span><br><span class="line">                <span class="keyword">return</span> ftzh.get_word_vector(key)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">return</span> ften.get_word_vector(key)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取日志模版</span></span><br><span class="line">    template = pd.read_csv(template_path)</span><br><span class="line">    template.fillna(<span class="string">&#x27;&#x27;</span>, inplace=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># TF-IDF 计算</span></span><br><span class="line">    corpus = template[<span class="string">&#x27;template_tokenize&#x27;</span>].to_list()</span><br><span class="line">    vectorizer = TfidfVectorizer()</span><br><span class="line">    X = vectorizer.fit_transform(corpus)</span><br><span class="line">    xarr = X.toarray()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 词向量计算</span></span><br><span class="line">    words = vectorizer.get_feature_names()</span><br><span class="line">    word_vectors = WordVectorDict()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 模版向量计算</span></span><br><span class="line">    template_vectors = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> row, arr <span class="keyword">in</span> <span class="built_in">zip</span>(template.to_dict(orient=<span class="string">&#x27;records&#x27;</span>), xarr):</span><br><span class="line">        lookup = defaultdict(<span class="built_in">int</span>, <span class="built_in">zip</span>(words, arr))</span><br><span class="line">        tokens = row[<span class="string">&#x27;template_tokenize&#x27;</span>].split()</span><br><span class="line">        tv = np.zeros(<span class="number">300</span>)</span><br><span class="line">        <span class="keyword">for</span> token <span class="keyword">in</span> tokens:</span><br><span class="line">            w = lookup[token]  <span class="comment"># TF-IDF</span></span><br><span class="line">            v = word_vectors[token]  <span class="comment"># 词向量</span></span><br><span class="line">            wv = w * v</span><br><span class="line">            tv += wv</span><br><span class="line">        tv = tv <span class="keyword">if</span> <span class="built_in">len</span>(tokens) == <span class="number">0</span> <span class="keyword">else</span> tv / <span class="built_in">len</span>(tokens)</span><br><span class="line">        template_vectors[row[<span class="string">&#x27;cluster_id&#x27;</span>]] = tv</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取日志解析结果</span></span><br><span class="line">    log_vectors = []</span><br><span class="line">    log_parsed = pd.read_csv(log_parsed_path)</span><br><span class="line">    <span class="keyword">for</span> cluster_id <span class="keyword">in</span> log_parsed[<span class="string">&#x27;cluster_id&#x27;</span>].to_list():</span><br><span class="line">        tv = template_vectors[cluster_id]</span><br><span class="line">        log_vectors.append(tv)</span><br><span class="line"></span><br><span class="line">    log_labels = log_parsed[<span class="string">&#x27;label&#x27;</span>].to_list()</span><br><span class="line"></span><br><span class="line">    x = np.array(log_vectors)</span><br><span class="line">    x = np.reshape(x, (x.shape[<span class="number">0</span>], <span class="number">1</span>, x.shape[<span class="number">1</span>]))</span><br><span class="line">    y = np.array(log_labels)</span><br><span class="line">    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=split_ratio, shuffle=<span class="literal">False</span>, stratify=<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># np.savez(&#x27;HDFS_10w.npz&#x27;, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (x_train, y_train), (x_test, y_test)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="模型定义-1"><a href="#模型定义-1" class="headerlink" title="模型定义"></a>模型定义</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> layers, models, optimizers</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_model</span>(<span class="params">input_shape, num_classes</span>):</span></span><br><span class="line">    inputs = layers.Input(shape=input_shape)</span><br><span class="line"></span><br><span class="line">    x = layers.Bidirectional(layers.LSTM(<span class="number">64</span>, return_sequences=<span class="literal">True</span>))(inputs)</span><br><span class="line">    x = layers.Bidirectional(layers.LSTM(<span class="number">64</span>))(x)</span><br><span class="line"></span><br><span class="line">    outputs = layers.Dense(num_classes, activation=<span class="string">&#x27;sigmoid&#x27;</span>)(x)</span><br><span class="line"></span><br><span class="line">    model = models.Model(inputs=inputs, outputs=outputs)</span><br><span class="line">    model.<span class="built_in">compile</span>(loss=<span class="string">&#x27;binary_crossentropy&#x27;</span>, optimizer=optimizers.Adam(), metrics=[<span class="string">&#x27;accuracy&#x27;</span>])</span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="模型训练-1"><a href="#模型训练-1" class="headerlink" title="模型训练"></a>模型训练</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 构造数据集</span></span><br><span class="line">log_parsed_path = <span class="string">&#x27;HDFS_parsed_10w.csv&#x27;</span></span><br><span class="line">template_path = <span class="string">&#x27;HDFS_template.csv&#x27;</span></span><br><span class="line">(x_train, y_train), (x_test, y_test) =  create_label_dataset(log_parsed_path, template_path)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义模型</span></span><br><span class="line">num_classes = <span class="number">1</span></span><br><span class="line">input_shape = (x_train.shape[<span class="number">1</span>], x_train.shape[<span class="number">2</span>])</span><br><span class="line">model = build_model(input_shape, num_classes)</span><br><span class="line">model.summary()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型训练</span></span><br><span class="line">call_backs = [</span><br><span class="line">    callbacks.ModelCheckpoint(<span class="string">&quot;best_model.h5&quot;</span>, save_best_only=<span class="literal">True</span>, monitor=<span class="string">&quot;val_loss&quot;</span>),</span><br><span class="line">    callbacks.ReduceLROnPlateau(monitor=<span class="string">&quot;val_loss&quot;</span>, factor=<span class="number">0.5</span>, patience=<span class="number">20</span>, min_lr=<span class="number">0.0001</span>),</span><br><span class="line">    callbacks.EarlyStopping(monitor=<span class="string">&quot;val_loss&quot;</span>, patience=<span class="number">50</span>, verbose=<span class="number">1</span>),</span><br><span class="line">]</span><br><span class="line">history = model.fit(x_train, y_train, batch_size=<span class="number">32</span>, epochs=<span class="number">20</span>, callbacks=call_backs, validation_split=<span class="number">0.2</span>, shuffle=<span class="literal">True</span>, verbose=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 评估模型</span></span><br><span class="line">best_model = models.load_model(<span class="string">&quot;best_model.h5&quot;</span>)</span><br><span class="line">y_pred = best_model.predict(x_test)</span><br><span class="line">y_pred = y_pred[:,<span class="number">0</span>].astype(<span class="built_in">int</span>)</span><br><span class="line">precision, recall, f1, _ = precision_recall_fscore_support(y_true, y_pred, average=<span class="string">&#x27;binary&#x27;</span>)</span><br><span class="line"><span class="comment"># (0.9553976053045843, 1.0, 0.9771901149032715, None)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 画图</span></span><br><span class="line">metric = <span class="string">&quot;accuracy&quot;</span></span><br><span class="line">plt.figure()</span><br><span class="line">plt.plot(history.history[metric])</span><br><span class="line">plt.plot(history.history[<span class="string">&quot;val_&quot;</span> + metric])</span><br><span class="line">plt.title(<span class="string">&quot;model &quot;</span> + metric)</span><br><span class="line">plt.ylabel(metric, fontsize=<span class="string">&quot;large&quot;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&quot;epoch&quot;</span>, fontsize=<span class="string">&quot;large&quot;</span>)</span><br><span class="line">plt.legend([<span class="string">&quot;train&quot;</span>, <span class="string">&quot;val&quot;</span>], loc=<span class="string">&quot;best&quot;</span>)</span><br><span class="line">plt.show()</span><br><span class="line">plt.close()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/HDFS.png" class="lazyload" data-srcset="/images/HDFS.png" srcset="data:image/png;base64,666" alt="HDFS model accuracy"></p>
+<h2 id="基于预测模式向量的异常检测"><a href="#基于预测模式向量的异常检测" class="headerlink" title="基于预测模式向量的异常检测"></a>基于预测模式向量的异常检测</h2><p>由于没有异常标注数据，所以需要换一种思路进行异常检测，借鉴对时间序列的预测，我们可以认为日志是一种时间序列，此方案中我们训练的模型不是分类模型，而是回归模型，预测下一个日志的模版向量表示，与真实日志的模版向量进行相似度计算，计算出的相似度低于某个阈值则认为该日志是异常的，相似度采用余弦相似度。</p>
+<h3 id="构造数据集-2"><a href="#构造数据集-2" class="headerlink" title="构造数据集"></a>构造数据集</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_vector_dataset</span>(<span class="params">log_parsed_path, template_path, window_size, split_ratio=<span class="number">0.8</span></span>):</span></span><br><span class="line">    <span class="keyword">import</span> fasttext</span><br><span class="line">    fasttext.FastText.eprint = <span class="keyword">lambda</span> x: <span class="literal">None</span></span><br><span class="line">    <span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer</span><br><span class="line"></span><br><span class="line">    ften = fasttext.load_model(<span class="string">&#x27;cc.en.300.bin&#x27;</span>)</span><br><span class="line">    ftzh = fasttext.load_model(<span class="string">&#x27;cc.zh.300.bin&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">WordVectorDict</span>(<span class="params"><span class="built_in">dict</span></span>):</span></span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">__missing__</span>(<span class="params">self, key</span>):</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">any</span>(<span class="built_in">map</span>(is_chinese, key)):</span><br><span class="line">                <span class="keyword">return</span> ftzh.get_word_vector(key)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">return</span> ften.get_word_vector(key)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取日志模版</span></span><br><span class="line">    template = pd.read_csv(template_path)</span><br><span class="line">    template.fillna(<span class="string">&#x27;&#x27;</span>, inplace=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># TF-IDF 计算</span></span><br><span class="line">    corpus = template[<span class="string">&#x27;template_tokenize&#x27;</span>].to_list()</span><br><span class="line">    vectorizer = TfidfVectorizer()</span><br><span class="line">    X = vectorizer.fit_transform(corpus)</span><br><span class="line">    xarr = X.toarray()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 词向量计算</span></span><br><span class="line">    words = vectorizer.get_feature_names()</span><br><span class="line">    word_vectors = WordVectorDict()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 模版向量计算</span></span><br><span class="line">    template_vectors = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> row, arr <span class="keyword">in</span> <span class="built_in">zip</span>(template.to_dict(orient=<span class="string">&#x27;records&#x27;</span>), xarr):</span><br><span class="line">        lookup = defaultdict(<span class="built_in">int</span>, <span class="built_in">zip</span>(words, arr))</span><br><span class="line">        tokens = row[<span class="string">&#x27;template_tokenize&#x27;</span>].split()</span><br><span class="line">        tv = np.zeros(<span class="number">300</span>)</span><br><span class="line">        <span class="keyword">for</span> token <span class="keyword">in</span> tokens:</span><br><span class="line">            w = lookup[token]  <span class="comment"># TF-IDF</span></span><br><span class="line">            v = word_vectors[token]  <span class="comment"># 词向量</span></span><br><span class="line">            wv = w * v</span><br><span class="line">            tv += wv</span><br><span class="line">        tv = tv <span class="keyword">if</span> <span class="built_in">len</span>(tokens) == <span class="number">0</span> <span class="keyword">else</span> tv / <span class="built_in">len</span>(tokens)</span><br><span class="line">        template_vectors[row[<span class="string">&#x27;cluster_id&#x27;</span>]] = tv</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 读取日志解析结果</span></span><br><span class="line">    log_vectors = []</span><br><span class="line">    log_parsed = pd.read_csv(log_parsed_path)</span><br><span class="line">    <span class="keyword">for</span> cluster_id <span class="keyword">in</span> log_parsed[<span class="string">&#x27;cluster_id&#x27;</span>].to_list():</span><br><span class="line">        tv = template_vectors[cluster_id]</span><br><span class="line">        log_vectors.append(tv)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fn</span>(<span class="params">dataset, look_back, look_interval=<span class="number">0</span>, look_forward=<span class="number">1</span></span>):</span></span><br><span class="line">        x, y = [], []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(dataset)-look_back-look_interval-look_forward):</span><br><span class="line">            back = dataset[i:i+look_back,]</span><br><span class="line">            forward = dataset[i+look_back+look_interval:i+look_back+look_interval+look_forward,]</span><br><span class="line">            x.append(back)</span><br><span class="line">            y.append(forward)</span><br><span class="line">        <span class="keyword">return</span> np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    x, y = fn(np.array(log_vectors), window_size)</span><br><span class="line">    y = y[:,<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=split_ratio, shuffle=<span class="literal">False</span>, stratify=<span class="literal">None</span>)</span><br><span class="line">    <span class="comment"># np.savez(&#x27;easybanking_1w.npz&#x27;, x_train=x_train, x_test=x_test, y_train=y_train, y_test=y_test)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (x_train, y_train), (x_test, y_test)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="模型定义-2"><a href="#模型定义-2" class="headerlink" title="模型定义"></a>模型定义</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> layers, models</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_model</span>(<span class="params">n_steps_in, n_features, n_steps_out</span>):</span></span><br><span class="line">    model = models.Sequential()</span><br><span class="line">    model.add(layers.Bidirectional(layers.LSTM(units=<span class="number">64</span>, activation=<span class="string">&#x27;tanh&#x27;</span>), input_shape=(n_steps_in, n_features)))</span><br><span class="line">    model.add(layers.Dense(n_steps_out))</span><br><span class="line">    model.<span class="built_in">compile</span>(loss=<span class="string">&#x27;mse&#x27;</span>, optimizer=<span class="string">&#x27;adam&#x27;</span>, metrics=[<span class="string">&#x27;accuracy&#x27;</span>])</span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="模型训练-2"><a href="#模型训练-2" class="headerlink" title="模型训练"></a>模型训练</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构造数据集</span></span><br><span class="line">window_size = <span class="number">10</span></span><br><span class="line">log_parsed_path = <span class="string">&#x27;easybanking_parsed_1w.csv&#x27;</span></span><br><span class="line">template_path = <span class="string">&#x27;easybanking_template.csv&#x27;</span></span><br><span class="line">(x_train, y_train), (x_test, y_test) = create_vector_dataset(log_parsed_path, template_path, window_size)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义模型</span></span><br><span class="line">n_steps_in, n_features, n_steps_out = (x_train.shape[<span class="number">1</span>], x_train.shape[<span class="number">2</span>], y_train.shape[<span class="number">1</span>])</span><br><span class="line">model = build_model(n_steps_in, n_features, n_features)</span><br><span class="line">model.summary()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型训练</span></span><br><span class="line">call_backs = [</span><br><span class="line">    callbacks.ModelCheckpoint(<span class="string">&quot;best_model.h5&quot;</span>, save_best_only=<span class="literal">True</span>, monitor=<span class="string">&quot;val_loss&quot;</span>),</span><br><span class="line">    callbacks.ReduceLROnPlateau(monitor=<span class="string">&quot;val_loss&quot;</span>, factor=<span class="number">0.5</span>, patience=<span class="number">20</span>, min_lr=<span class="number">0.0001</span>),</span><br><span class="line">    callbacks.EarlyStopping(monitor=<span class="string">&quot;val_loss&quot;</span>, patience=<span class="number">50</span>, verbose=<span class="number">1</span>),</span><br><span class="line">]</span><br><span class="line">history = model.fit(x_train, y_train, batch_size=<span class="number">32</span>, epochs=<span class="number">20</span>, callbacks=call_backs, validation_split=<span class="number">0.2</span>, shuffle=<span class="literal">True</span>, verbose=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 画图</span></span><br><span class="line">metric = <span class="string">&quot;accuracy&quot;</span></span><br><span class="line">plt.figure()</span><br><span class="line">plt.plot(history.history[metric])</span><br><span class="line">plt.plot(history.history[<span class="string">&quot;val_&quot;</span> + metric])</span><br><span class="line">plt.title(<span class="string">&quot;model &quot;</span> + metric)</span><br><span class="line">plt.ylabel(metric, fontsize=<span class="string">&quot;large&quot;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&quot;epoch&quot;</span>, fontsize=<span class="string">&quot;large&quot;</span>)</span><br><span class="line">plt.legend([<span class="string">&quot;train&quot;</span>, <span class="string">&quot;val&quot;</span>], loc=<span class="string">&quot;best&quot;</span>)</span><br><span class="line">plt.show()</span><br><span class="line">plt.close()</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/easybanking.png" class="lazyload" data-srcset="/images/easybanking.png" srcset="data:image/png;base64,666" alt="easybanking model accuracy"></p>
+
+  
+  
+    
+    <div class='footer'>
+      
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=https://fuyunliu.github.io/2021/06/08/log-anomaly-detection/>https://fuyunliu.github.io/2021/06/08/log-anomaly-detection/</a></p>
+              
+            
+          </blockquote>
+        </div>
+      
+      
+    </div>
+  
+  
+    
+
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-06-08T16:39:02+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2021年6月8日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/LSTM/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>LSTM</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Drain3/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>Drain3</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/FastText/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>FastText</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/HanLP/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>HanLP</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        
+        <div class='hoverbox'>
+          <a class='share'><img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/wechat.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/wechat.png" srcset="data:image/png;base64,666"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATgAAAE4CAAAAADqFLC2AAADoElEQVR42u3aQXLCQAwEQP7/6eSeqpRXIxkE9N6cYO+qfRkkHj9WtB4IwIEDB84CB24J3CNc8cbN51Xv+/u5br3gwIEDBw4cOHDb4KoHP/371HNP970svFkvOHDgwIEDBw7cVrjqxlcHqd5fBZy6Pn4+OHDgwIEDBw7cl8Kd7ps2ItMXBw4cOHDgwIED9+1w1YPetS84cODAgQMHDty3wZUHtMMB9Grf9IeC6yb54MCBAwcOHDhwQ3DVNR2In30d1wsOHDhw4MCBA7cErrvSxuB0kD4dhLfrBQcOHDhw4MCBWwLXbQx2D5o2Fk/PVb3/8oWAAwcOHDhw4MAtgburgGpArQ6Q08+d/v3f/4MDBw4cOHDgwC2Dm2o0pj8U7IKlA+byucCBAwcOHDhw4JbD3d1oTAtIA3Ya+MGBAwcOHDhw4N4N7jQIVwfCaZDtDqbTesCBAwcOHDhw4LbDpQPaNBBXYdPnpgH8333BgQMHDhw4cODeFO50UD1V0FQgLwfd6QAMDhw4cODAgQN3M1y3MZkCpgPpFCiuExw4cODAgQMHbhlcGlyrQXYqcN/V0Lx8Djhw4MCBAwcO3BK4qeA71RjtBu7uQBocOHDgwIEDB+5T4KoB8QrwtNDqddrgLIODAwcOHDhw4MAtgzsNsFMFdxucKWQKCA4cOHDgwIED925w1Y2rgbcbrNMAHAdjcODAgQMHDhy4JXDVhmAalNOC7h4wl+sABw4cOHDgwIFbAlcdzFaDZPq5NKB2G5ztgTQ4cODAgQMHDtyT4LqBsVt49TlTg/HqucGBAwcOHDhw4LbCVQfM3cFuFyRtlFYH6ODAgQMHDhw4cFvh0kHtdKDtDqyng/PYQBocOHDgwIEDB+5JcI/iqjYSU6jq6jZGy5N8cODAgQMHDhy4F8NVD9YFOh1gd4Ns9Rztbw7gwIEDBw4cOHAvgkuDcPyDvSGwuxY4cODAgQMHDtw2uO5K4br3T8GXXxA4cODAgQMHDtwSuG4gTEG7g+LT56bXx98cwIEDBw4cOHDgXgw3NYjuHqx6rip0GqjBgQMHDhw4cOC2w3UD5emBugH3toHz1QsFBw4cOHDgwIH7ULjqfdXBcTe4twM8OHDgwIEDBw7ch8FVB9anDcdqw/OuQTc4cODAgQMHDtx2uKkB8FRBU4F3rLEKDhw4cODAgQO3DK47wP1prm5wPQ3K3UAPDhw4cODAgQO3Bc4qvmAE4MCBA2eBA/fa9QvzLHzTVtlnaAAAAABJRU5ErkJggg==">
+          </div>
+        </div>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </div>
+
+
+  
+  
+
+  
+    <div class="prev-next">
+      
+      
+        <a class='next' href='/2021/04/17/session-cookie-jwt/'>
+          <p class='title'>Session 、Cookie 和 JWT 详解<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>
+
+什么是 CookieHTTP Cookie（也叫 Web Cookie 或浏览器 Cookie）是服务器发送到用户浏览器并保存在本地的一小块数据，它会在浏览器下次向同一服务器再发起请求时被携...</p>
+        </a>
+      
+    </div>
+  
+</article>
+
+
+  
+
+  <article class="post white-box reveal shadow" id="comments">
+    <p ct><i class='fas fa-comments'></i> 评论</p>
+    
+    <div id="valine_container" class="valine_thread">
+  <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+</div>
+
+  </article>
+
+
+
+
+
+
+</div>
+<aside class='l_side'>
+  
+  
+    
+    
+
+
+
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E6%A8%A1%E5%BC%8F%E8%AF%86%E5%88%AB"><span class="toc-text">日志模式识别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E6%A0%B7%E4%BE%8B"><span class="toc-text">日志样例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E6%A8%A1%E5%BC%8F"><span class="toc-text">日志模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%90%E5%8F%96%E4%B8%AD%E8%8B%B1%E6%96%87%E5%8D%95%E8%AF%8D"><span class="toc-text">提取中英文单词</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%AD%E6%96%87%E5%88%86%E8%AF%8D"><span class="toc-text">中文分词</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%9F%E4%B8%80%E8%BD%AC%E5%8C%96%E4%B8%BA%E5%B0%8F%E5%86%99"><span class="toc-text">统一转化为小写</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%8D%E5%B9%B2%E6%8F%90%E5%8F%96"><span class="toc-text">词干提取</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%8D%E5%BD%A2%E8%BF%98%E5%8E%9F"><span class="toc-text">词形还原</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%BB%E5%81%9C%E7%94%A8%E8%AF%8D"><span class="toc-text">去停用词</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F%E5%90%91%E9%87%8F%E8%AE%A1%E7%AE%97"><span class="toc-text">模式向量计算</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TF-IDF-%E8%AE%A1%E7%AE%97"><span class="toc-text">TF-IDF 计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%8D%E5%90%91%E9%87%8F%E8%AE%A1%E7%AE%97"><span class="toc-text">词向量计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F%E5%90%91%E9%87%8F"><span class="toc-text">模式向量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%BC%8F%E7%9B%B8%E4%BC%BC%E5%BA%A6"><span class="toc-text">模式相似度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87"><span class="toc-text">评估指标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E6%A8%A1%E5%BC%8F%E6%A6%82%E7%8E%87%E5%88%86%E5%B8%83%E7%9A%84%E5%BC%82%E5%B8%B8%E6%A3%80%E6%B5%8B"><span class="toc-text">基于模式概率分布的异常检测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="toc-text">构造数据集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E5%AE%9A%E4%B9%89"><span class="toc-text">模型定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83"><span class="toc-text">模型训练</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E6%9C%89%E7%9B%91%E7%9D%A3%E4%BA%8C%E5%88%86%E7%B1%BB%E7%9A%84%E5%BC%82%E5%B8%B8%E6%A3%80%E6%B5%8B"><span class="toc-text">基于有监督二分类的异常检测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E6%95%B0%E6%8D%AE%E9%9B%86-1"><span class="toc-text">构造数据集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E5%AE%9A%E4%B9%89-1"><span class="toc-text">模型定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83-1"><span class="toc-text">模型训练</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E9%A2%84%E6%B5%8B%E6%A8%A1%E5%BC%8F%E5%90%91%E9%87%8F%E7%9A%84%E5%BC%82%E5%B8%B8%E6%A3%80%E6%B5%8B"><span class="toc-text">基于预测模式向量的异常检测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E6%95%B0%E6%8D%AE%E9%9B%86-2"><span class="toc-text">构造数据集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E5%AE%9A%E4%B9%89-2"><span class="toc-text">模型定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83-2"><span class="toc-text">模型训练</span></a></li></ol></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+
+        
+        
+          <!--此文件用来存放一些不方便取值的变量-->
+<!--思路大概是将值藏到重加载的区域内-->
+
+<script>
+  window.pdata={}
+  pdata.ispage=true;
+  pdata.postTitle="基于 LSTM 深度学习模型的日志异常检测";
+  pdata.commentPath="";
+  pdata.commentPlaceholder="";
+
+  var l_header=document.getElementById("l_header");
+  
+  l_header.classList.add("show");
+  
+</script>
+
+        
+      </div>
+      
+  
+  <footer class="footer clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      
+    
+      
+        <div><p>博客内容遵循 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+      
+    
+      
+        
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+</div>
+        
+      
+    
+      
+        本站使用
+        <a href="https://github.com/volantis-x/hexo-theme-volantis/tree/4.1.6" target="_blank" class="codename">Volantis</a>
+        作为主题
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="/">Copyright © 2017-2020 No One</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+
+      <a id="s-top" class="fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+    </div>
+  </div>
+  <div>
+    <script>
+window.volantis={};
+window.volantis.loadcss=document.getElementById("loadcss");
+/********************脚本懒加载函数********************************/
+function loadScript(src, cb) {
+var HEAD = document.getElementsByTagName('head')[0] || document.documentElement;
+var script = document.createElement('script');
+script.setAttribute('type','text/javascript');
+if (cb) script.onload = cb;
+script.setAttribute('src', src);
+HEAD.appendChild(script);
+}
+//https://github.com/filamentgroup/loadCSS
+var loadCSS = function( href, before, media, attributes ){
+	var doc = window.document;
+	var ss = doc.createElement( "link" );
+	var ref;
+	if( before ){
+		ref = before;
+	}
+	else {
+		var refs = ( doc.body || doc.getElementsByTagName( "head" )[ 0 ] ).childNodes;
+		ref = refs[ refs.length - 1];
+	}
+	var sheets = doc.styleSheets;
+	if( attributes ){
+		for( var attributeName in attributes ){
+			if( attributes.hasOwnProperty( attributeName ) ){
+				ss.setAttribute( attributeName, attributes[attributeName] );
+			}
+		}
+	}
+	ss.rel = "stylesheet";
+	ss.href = href;
+	ss.media = "only x";
+	function ready( cb ){
+		if( doc.body ){
+			return cb();
+		}
+		setTimeout(function(){
+			ready( cb );
+		});
+	}
+	ready( function(){
+		ref.parentNode.insertBefore( ss, ( before ? ref : ref.nextSibling ) );
+	});
+	var onloadcssdefined = function( cb ){
+		var resolvedHref = ss.href;
+		var i = sheets.length;
+		while( i-- ){
+			if( sheets[ i ].href === resolvedHref ){
+				return cb();
+			}
+		}
+		setTimeout(function() {
+			onloadcssdefined( cb );
+		});
+	};
+	function loadCB(){
+		if( ss.addEventListener ){
+			ss.removeEventListener( "load", loadCB );
+		}
+		ss.media = media || "all";
+	}
+	if( ss.addEventListener ){
+		ss.addEventListener( "load", loadCB);
+	}
+	ss.onloadcssdefined = onloadcssdefined;
+	onloadcssdefined( loadCB );
+	return ss;
+};
+</script>
+<script>
+  
+  loadCSS("https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14/css/all.min.css", window.volantis.loadcss);
+  
+  
+  
+  
+  loadCSS("https://cdn.jsdelivr.net/npm/highlight.js@9.18.1/styles/solarized-light.css", window.volantis.loadcss);
+  
+</script>
+<!-- required -->
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5/dist/jquery.min.js"></script>
+
+<script>
+  function pjax_fancybox() {
+    $(".md .gallery").find("img").each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("class", "fancybox");
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 判断当前页面是否存在描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".md .gallery").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  function SCload_fancybox() {
+    if ($(".md .gallery").find("img").length == 0) return;
+    loadCSS("https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css", document.getElementById("loadcss"));
+    setTimeout(function() {
+      loadScript('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js', pjax_fancybox)
+    }, 1);
+  };
+  $(function () {
+    SCload_fancybox();
+  });
+</script>
+
+
+<!-- internal -->
+
+
+
+
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
+
+
+  
+  
+    <script>
+      window.FPConfig = {
+        delay: 0,
+        ignoreKeywords: [],
+        maxRPS: 5,
+        hoverDelay: 25
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"></script>
+  
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+    var clipboard = new ClipboardJS('.btn-copy', {
+        target: function (trigger) {
+            return trigger.nextElementSibling
+        }
+    });
+    function wait(callback, seconds) {
+        var timelag = null;
+        timelag = window.setTimeout(callback, seconds)
+    }
+    function pjax_initCopyCode() {
+		if($(".highlight .code pre").length+$(".article pre code").length==0)return;
+        var copyHtml = '';
+        copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+        copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+        copyHtml += '</button>';
+        $(".highlight .code pre").before(copyHtml);
+        $(".article pre code").before(copyHtml);
+        clipboard.off('success').on('success', function (e) {
+            let $btn = $(e.trigger);
+            $btn.addClass('copied');
+            let $icon = $($btn.find('i'));
+            $icon.removeClass('fa-copy');
+            $icon.addClass('fa-check-circle');
+            let $span = $($btn.find('span'));
+            $span[0].innerText = 'COPIED';
+            wait(function () {
+                $icon.removeClass('fa-check-circle');
+                $icon.addClass('fa-copy');
+                $span[0].innerText = 'COPY'
+            }, 2000)
+        });
+        clipboard.off('error').on('error', function (e) {
+            e.clearSelection();
+            let $btn = $(e.trigger);
+            $btn.addClass('copy-failed');
+            let $icon = $($btn.find('i'));
+            $icon.removeClass('fa-copy');
+            $icon.addClass('fa-times-circle');
+            let $span = $($btn.find('span'));
+            $span[0].innerText = 'COPY FAILED';
+            wait(function () {
+                $icon.removeClass('fa-times-circle');
+                $icon.addClass('fa-copy');
+                $span[0].innerText = 'COPY'
+            }, 2000)
+        })
+    }
+    $(function () {
+        pjax_initCopyCode()
+    });
+</script>
+
+
+
+
+
+
+
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@4.1.6/source/js/valine.min.js"></script>
+
+
+<script>
+  var GUEST_INFO = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link'.split(',').filter(function (item) {
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick', 'mail', 'link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function (item) {
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+
+  function emoji(path, idx, ext) {
+    return path + "/" + path + "-" + idx + "." + ext;
+  }
+
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+
+  function pjax_valine() {
+    if(!document.querySelectorAll("#valine_container")[0])return;
+
+    let pagePlaceholder = pdata.commentPlaceholder || "快来评论吧~";
+
+    let path = pdata.commentPath;
+    if (path.length == 0) {
+      let defaultPath = '';
+      path = defaultPath || decodeURI(window.location.pathname);
+    }
+
+    var valine = new Valine();
+    valine.init({
+      el: '#valine_container',
+      meta: meta,
+      placeholder: pagePlaceholder,
+      path: path,
+      appId: "pjlhh6pckdaEy35kV9Li7aoa-gzGzoHsz",
+      appKey: "xGJrXR4mfkNcOu7JhPA6xvbH",
+      pageSize: '10',
+      avatar: 'robohash',
+      lang: 'zh-cn',
+      visitor: 'true',
+      highlight: 'true',
+      mathJax: 'false',
+      enableQQ: 'true',
+      recordIP: 'false',
+      requiredFields: requiredFields,
+      emojiCDN: 'https://cdn.jsdelivr.net/gh/volantis-x/cdn-emoji/valine/',
+      emojiMaps: emojiMaps
+    })
+  }
+
+  $(function () {
+    pjax_valine();
+  });
+</script>
+
+
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-theme-volantis@4.1.6/source/js/app.min.js"></script>
+
+
+
+<!-- optional -->
+
+  <script>
+const SearchServiceimagePath="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@master/img/";
+const ROOT =  ("/" || "/").endsWith('/') ? ("/" || "/") : ("//" || "/" );
+
+$('.input.u-search-input').one('focus',function(){
+	
+		loadScript('https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@2.6.4/js/search.js',setSearchService);
+	
+})
+
+function listenSearch(){
+  
+    customSearch = new HexoSearch({
+      imagePath: SearchServiceimagePath
+    });
+  
+}
+function setSearchService() {
+	listenSearch();
+	
+}
+</script>
+
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+  
+
+
+
+  <script defer>
+
+  const LCCounter = {
+    app_id: 'u9j57bwJod4EDmXWdxrwuqQT-MdYXbMMI',
+    app_key: 'jfHtEKVE24j0IVCGHbvuFClp',
+    custom_api_server: '',
+
+    // 查询存储的记录
+    getRecord(Counter, url, title) {
+      return new Promise(function (resolve, reject) {
+        Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({url})))
+          .then(resp => resp.json())
+          .then(({results, code, error}) => {
+            if (code === 401) {
+              throw error;
+            }
+            if (results && results.length > 0) {
+              var record = results[0];
+              resolve(record);
+            } else {
+              Counter('post', '/classes/Counter', {url, title: title, times: 0})
+                .then(resp => resp.json())
+                .then((record, error) => {
+                  if (error) {
+                    throw error;
+                  }
+                  resolve(record);
+                }).catch(error => {
+                console.error('Failed to create', error);
+                reject(error);
+              });
+            }
+          }).catch((error) => {
+          console.error('LeanCloud Counter Error:', error);
+          reject(error);
+        });
+      })
+    },
+
+    // 发起自增请求
+    increment(Counter, incrArr) {
+      return new Promise(function (resolve, reject) {
+        Counter('post', '/batch', {
+          "requests": incrArr
+        }).then((res) => {
+          res = res.json();
+          if (res.error) {
+            throw res.error;
+          }
+          resolve(res);
+        }).catch((error) => {
+          console.error('Failed to save visitor count', error);
+          reject(error);
+        });
+      });
+    },
+
+    // 构建自增请求体
+    buildIncrement(objectId) {
+      return {
+        "method": "PUT",
+        "path": `/1.1/classes/Counter/${ objectId }`,
+        "body": {
+          "times": {
+            '__op': 'Increment',
+            'amount': 1
+          }
+        }
+      }
+    },
+
+    // 校验是否为有效的 UV
+    validUV() {
+      var key = 'LeanCloudUVTimestamp';
+      var flag = localStorage.getItem(key);
+      if (flag) {
+        // 距离标记小于 24 小时则不计为 UV
+        if (new Date().getTime() - parseInt(flag) <= 86400000) {
+          return false;
+        }
+      }
+      localStorage.setItem(key, new Date().getTime().toString());
+      return true;
+    },
+
+    addCount(Counter) {
+      var enableIncr = '' === 'true' && window.location.hostname !== 'localhost';
+      enableIncr = true;
+      var getterArr = [];
+      var incrArr = [];
+      // 请求 PV 并自增
+      var pvCtn = document.querySelector('#lc-sv');
+      if (pvCtn || enableIncr) {
+        var pvGetter = this.getRecord(Counter, 'https://fuyunliu.github.io' + '/#lc-sv', 'Visits').then((record) => {
+          incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-sv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + 1;
+              if (pvCtn) {
+                pvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(pvGetter);
+      }
+
+      // 请求 UV 并自增
+      var uvCtn = document.querySelector('#lc-uv');
+      if (uvCtn || enableIncr) {
+        var uvGetter = this.getRecord(Counter, 'https://fuyunliu.github.io' + '/#lc-uv', 'Visitors').then((record) => {
+          var vuv = this.validUV();
+          vuv && incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-uv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + (vuv ? 1 : 0);
+              if (uvCtn) {
+                uvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(uvGetter);
+      }
+
+      // 请求文章的浏览数，如果是当前页面就自增
+      var allPV = document.querySelectorAll('#lc-pv');
+      if (allPV.length > 0 || enableIncr) {
+        for (i = 0; i < allPV.length; i++) {
+          let pv = allPV[i];
+          let title = pv.getAttribute('data-title');
+          var url = 'https://fuyunliu.github.io' + pv.getAttribute('data-path');
+          if (url) {
+            var viewGetter = this.getRecord(Counter, url, title).then((record) => {
+              // 是当前页面就自增
+              let curPath = window.location.pathname;
+              if (curPath.includes('index.html')) {
+                curPath = curPath.substring(0, curPath.lastIndexOf('index.html'));
+              }
+              if (pv.getAttribute('data-path') == curPath) {
+                incrArr.push(this.buildIncrement(record.objectId));
+              }
+              if (pv) {
+                var ele = pv.querySelector('#lc-pv #number');
+                if (ele) {
+                  if (pv.getAttribute('data-path') == curPath) {
+                    ele.innerText = (record.times || 0) + 1;
+                  } else {
+                    ele.innerText = record.times || 0;
+                  }
+                  pv.style.display = 'inline';
+                }
+              }
+            });
+            getterArr.push(viewGetter);
+          }
+        }
+      }
+
+      // 如果启动计数自增，批量发起自增请求
+      if (enableIncr) {
+        Promise.all(getterArr).then(() => {
+          incrArr.length > 0 && this.increment(Counter, incrArr);
+        })
+      }
+
+    },
+
+
+    fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${ api_server }/1.1${ url }`, {
+          method,
+          headers: {
+            'X-LC-Id': this.app_id,
+            'X-LC-Key': this.app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      this.addCount(Counter);
+    },
+
+    refreshCounter() {
+      var api_server = this.app_id.slice(-9) !== '-MdYXbMMI' ? this.custom_api_server : `https://${ this.app_id.slice(0, 8).toLowerCase() }.api.lncldglobal.com`;
+      if (api_server) {
+        this.fetchData(api_server);
+      } else {
+        fetch('https://app-router.leancloud.cn/2/route?appId=' + this.app_id)
+          .then(resp => resp.json())
+          .then(({api_server}) => {
+            this.fetchData('https://' + api_server);
+          });
+      }
+    }
+
+  };
+
+  LCCounter.refreshCounter();
+
+  document.addEventListener('pjax:complete', function () {
+    LCCounter.refreshCounter();
+  });
+</script>
+
+
+
+
+  <script>
+const rootElement = document.documentElement;
+const darkModeStorageKey = "user-color-scheme";
+const rootElementDarkModeAttributeName = "data-user-color-scheme";
+
+const setLS = (k, v) => {
+  try {
+    localStorage.setItem(k, v);
+  } catch (e) {
+    console.log(e.message);
+  }
+};
+
+const removeLS = (k) => {
+  try {
+    localStorage.removeItem(k);
+  } catch (e) {
+    console.log(e.message);
+  }
+};
+
+const getLS = (k) => {
+  try {
+    return localStorage.getItem(k);
+  } catch (e) {
+    console.log(e.message);
+    return null;
+  }
+};
+
+const getModeFromCSSMediaQuery = () => {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};
+
+const resetRootDarkModeAttributeAndLS = () => {
+  rootElement.removeAttribute(rootElementDarkModeAttributeName);
+  removeLS(darkModeStorageKey);
+};
+
+const validColorModeKeys = {
+  dark: true,
+  light: true,
+};
+
+const applyCustomDarkModeSettings = (mode) => {
+  const currentSetting = mode || getLS(darkModeStorageKey);
+
+  if (currentSetting === getModeFromCSSMediaQuery()) {
+    resetRootDarkModeAttributeAndLS();
+  } else if (validColorModeKeys[currentSetting]) {
+    rootElement.setAttribute(rootElementDarkModeAttributeName, currentSetting);
+  } else {
+    resetRootDarkModeAttributeAndLS();
+  }
+};
+
+const invertDarkModeObj = {
+  dark: "light",
+  light: "dark",
+};
+
+/**
+ * get target mode
+ */
+const toggleCustomDarkMode = () => {
+  let currentSetting = getLS(darkModeStorageKey);
+
+  if (validColorModeKeys[currentSetting]) {
+    currentSetting = invertDarkModeObj[currentSetting];
+  } else if (currentSetting === null) {
+    currentSetting = invertDarkModeObj[getModeFromCSSMediaQuery()];
+  } else {
+    return;
+  }
+  setLS(darkModeStorageKey, currentSetting);
+  return currentSetting;
+};
+
+/**
+ * bind click event for toggle button
+ */
+function bindToggleButton() {
+	var btn=$("#wrapper .toggle-mode-btn");
+    btn.on('click',(e) => {
+      const mode = toggleCustomDarkMode();
+      applyCustomDarkModeSettings(mode);
+    });
+}
+
+applyCustomDarkModeSettings();
+document.addEventListener("DOMContentLoaded", bindToggleButton);
+document.addEventListener("pjax:success", bindToggleButton);
+
+</script>
+
+
+
+
+
+
+<script>
+function listennSidebarTOC() {
+  const navItems = document.querySelectorAll(".toc li");
+  if (!navItems.length) return;
+  const sections = [...navItems].map((element) => {
+    const link = element.querySelector(".toc-link");
+    const target = document.getElementById(
+      decodeURI(link.getAttribute("href")).replace("#", "")
+    );
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.scrollTo({
+		top: target.offsetTop + 100,
+		
+		behavior: "smooth"
+		
+	  });
+    });
+    return target;
+  });
+
+  function activateNavByIndex(target) {
+    if (target.classList.contains("active-current")) return;
+
+    document.querySelectorAll(".toc .active").forEach((element) => {
+      element.classList.remove("active", "active-current");
+    });
+    target.classList.add("active", "active-current");
+    let parent = target.parentNode;
+    while (!parent.matches(".toc")) {
+      if (parent.matches("li")) parent.classList.add("active");
+      parent = parent.parentNode;
+    }
+  }
+
+  function findIndex(entries) {
+    let index = 0;
+    let entry = entries[index];
+    if (entry.boundingClientRect.top > 0) {
+      index = sections.indexOf(entry.target);
+      return index === 0 ? 0 : index - 1;
+    }
+    for (; index < entries.length; index++) {
+      if (entries[index].boundingClientRect.top <= 0) {
+        entry = entries[index];
+      } else {
+        return sections.indexOf(entry.target);
+      }
+    }
+    return sections.indexOf(entry.target);
+  }
+
+  function createIntersectionObserver(marginTop) {
+    marginTop = Math.floor(marginTop + 10000);
+    let intersectionObserver = new IntersectionObserver(
+      (entries, observe) => {
+        let scrollHeight = document.documentElement.scrollHeight + 100;
+        if (scrollHeight > marginTop) {
+          observe.disconnect();
+          createIntersectionObserver(scrollHeight);
+          return;
+        }
+        let index = findIndex(entries);
+        activateNavByIndex(navItems[index]);
+      },
+      {
+        rootMargin: marginTop + "px 0px -100% 0px",
+        threshold: 0,
+      }
+    );
+    sections.forEach((element) => {
+      element && intersectionObserver.observe(element);
+    });
+  }
+  createIntersectionObserver(document.documentElement.scrollHeight);
+}
+
+document.addEventListener("DOMContentLoaded", listennSidebarTOC);
+document.addEventListener("pjax:success", listennSidebarTOC);
+</script>
+
+<!-- more -->
+
+
+
+
+    
+      
+
+
+<script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script>
+
+
+<script>
+    var pjax;
+    document.addEventListener('DOMContentLoaded', function () {
+      pjax = new Pjax({
+        elements: 'a[href]:not([href^="#"]):not([href="javascript:void(0)"]):not([pjax-fancybox])',
+        selectors: [
+          "title",
+          "#l_cover",
+          "#pjax-container",
+          "#pjax-header-nav-list"
+        ],
+        cacheBust: false,   // url 地址追加时间戳，用以避免浏览器缓存
+        timeout: 5000
+      });
+    });
+
+    document.addEventListener('pjax:send', function (e) {
+      //window.stop(); // 相当于点击了浏览器的停止按钮
+
+      try {
+        var currentUrl = window.location.pathname;
+        var targetUrl = e.triggerElement.href;
+        var banUrl = [""];
+        if (banUrl[0] != "") {
+          banUrl.forEach(item => {
+            if(currentUrl.indexOf(item) != -1 || targetUrl.indexOf(item) != -1) {
+              window.location.href = targetUrl;
+            }
+          });
+        }
+      } catch (error) {}
+
+      window.subData = null; // 移除标题（用于一二级导航栏切换处）
+      if (typeof $.fancybox != "undefined") {
+        $.fancybox.close();    // 关闭弹窗
+      }
+      volantis.$switcher.removeClass('active'); // 关闭移动端激活的搜索框
+      volantis.$header.removeClass('z_search-open'); // 关闭移动端激活的搜索框
+      volantis.$wrapper.removeClass('sub'); // 跳转页面时关闭二级导航
+
+      // 解绑事件 避免重复监听
+      volantis.$topBtn.unbind('click');
+      $('.menu a').unbind('click');
+      $(window).unbind('resize');
+      $(window).unbind('scroll');
+      $(document).unbind('scroll');
+      $(document).unbind('click');
+      $('body').unbind('click');
+	  
+    });
+
+    document.addEventListener('pjax:complete', function () {
+      // 关于百度统计对 SPA 页面的处理：
+      // 方案一：百度统计>管理>单页应用设置中，打开开启按钮即可对SPA进行统计。 https://tongji.baidu.com/web/help/article?id=324
+      // 方案二：取消注释下列代码。 https://tongji.baidu.com/web/help/article?id=235
+       
+
+      // 关于谷歌统计对 SPA 页面的处理：
+      // 当应用以动态方式加载内容并更新地址栏中的网址时，也应该更新通过 gtag.js 存储的网页网址。
+      // https://developers.google.cn/analytics/devguides/collection/gtagjs/single-page-applications?hl=zh-cn
+      
+	 
+
+      $('.nav-main').find('.list-v').not('.menu-phone').removeAttr("style",""); // 移除小尾巴的移除
+      $('.menu-phone.list-v').removeAttr("style",""); // 移除小尾巴的移除
+      $('script[data-pjax], .pjax-reload script').each(function () {
+        $(this).parent().append($(this).remove());
+      });
+      try{
+          if (typeof $.fancybox == "undefined") {
+            SCload_fancybox();
+          } else {
+            pjax_fancybox();
+          }
+        
+        
+        document.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightBlock(block);
+        });
+        
+        
+        
+        
+          pjax_initCopyCode();
+        
+        
+          pjax_valine();
+        
+        
+        
+        
+      } catch (e) {
+        console.log(e);
+      }
+	  
+    });
+
+    document.addEventListener('pjax:error', function (e) {
+	  
+      window.location.href = e.triggerElement.href;
+    });
+</script>
+
+    
+  </div>
+</body>
+</html>
