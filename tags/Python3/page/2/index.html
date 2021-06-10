@@ -21,7 +21,7 @@
 
   <!-- 页面元数据 -->
   
-  <title>分类：笔记 - 听听那冷雨</title>
+  <title>标签：Python3 - 听听那冷雨</title>
   
 
   
@@ -307,30 +307,6 @@
       
   <section class="post-list">
     
-      
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-      
-    
     
       
         
@@ -342,23 +318,21 @@
   
     
     <h2 class="article-title" >
-      <a href="/2021/06/10/similarity-measures-in-python/">
-        数据科学中的各种相似性度量及其实现
+      <a href="/2018/03/09/python-reloader/">
+        Python 脚本自动重载
       </a>
     </h2>
   
   <div class='md'>
     
-      <!-- toc -->
-
-<h2 id="欧氏距离-Euclidean-Distance"><a href="#欧氏距离-Euclidean-Distance" class="headerlink" title="欧氏距离(Euclidean Distance)"></a>欧氏距离(Euclidean Distance)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">euclidean_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = sqrt(sum(pow(a - b, 2) for a, b in zip(x, y)))</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=2)</span></span><br><span class="line"></span><br><span class="line">    d = np.sqrt(np.<span class="built_in">sum</span>(np.square(x - y)))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">euclidean_distance(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> euclidean</span><br><span class="line">euclidean(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      <p>Django 和 Flask 应用开启 debug 模式之后都能检测代码的变化然后自动重载，于是去找实现代码，发现 Flask 是用的 werkzeug 库里面的功能，而 Django 的不好用于自己写的脚本，因为和 Django 应用结合了。</p>
     
   </div>
   
     <div class='meta-v3' line_style='solid'>
       <div>
         
-        <time>2021-06-10</time>
+        <time>2018-03-09</time>
         
           <span class="dot"></span>
           <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
@@ -366,420 +340,7 @@
       </div>
       
         <div>
-          <a class='readmore' href='/2021/06/10/similarity-measures-in-python/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/06/08/log-anomaly-detection/">
-        基于 LSTM 深度学习模型的日志异常检测
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <!-- toc -->
-
-<h2 id="日志模式识别"><a href="#日志模式识别" class="headerlink" title="日志模式识别"></a>日志模式识别</h2><h3 id="日志样例"><a href="#日志样例" class="headerlink" title="日志样例"></a>日志样例</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">2021-03-11 09:23:17,195 [OCKey:HlTOgWeM-LYFkTMn2wsXcEd] DEBUG com.dawninfotek.base.security.WebAppSafeGuard - BaseWebAppSafeGuard.class::key = beneAcctNo4 value = 1</span><br><span class="line">2021-03-11 09:23:17,849 [OCKey:zQXeCzqsWdY9_GliHIoAIpI] DEBUG com.dawninfotek.base.action.BaseDispatchAction - com.dawninfotek.easybanking.web.pr.olbfinance.polbfinancemyfinancenew.POLBFinanceMyFinanceAction::Base BaseDispatchAction - link6::37003747</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::Getting a connection from dataSource</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::got connection com.ibm.ws.rsadapter.jdbc.WSJdbcConnection@3bfa1e18 from dataSource: auto Commit = false</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Connection</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Preparing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Executing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Parameters: [42300205]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Types: [java.lang.String]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.easybanking.base.process.EasyBankingProcessManager - com.dawninfotek.easybanking.base.process.EasyBankingProcessManager::Start to commit transaction for DAC:EasyBankingSample</span><br></pre></td></tr></table></figure>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-06-08</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/06/08/log-anomaly-detection/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/04/17/session-cookie-jwt/">
-        Session 、Cookie 和 JWT 详解
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <!-- toc -->
-
-<h2 id="什么是-Cookie"><a href="#什么是-Cookie" class="headerlink" title="什么是 Cookie"></a>什么是 Cookie</h2><p>HTTP Cookie（也叫 Web Cookie 或浏览器 Cookie）是服务器发送到用户浏览器并保存在本地的一小块数据，它会在浏览器下次向同一服务器再发起请求时被携带并发送到服务器上。通常，它用于告知服务端两个请求是否来自同一浏览器，如保持用户的登录状态。Cookie 使基于无状态的HTTP协议记录稳定的状态信息成为了可能。</p>
-<p>Cookie 主要用于以下三个方面：</p>
-<ol>
-<li>会话状态管理（如用户登录状态、购物车、游戏分数或其它需要记录的信息）</li>
-<li>个性化设置（如用户自定义设置、主题等）</li>
-<li>浏览器行为跟踪（如跟踪分析用户行为等）</li>
-</ol>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-04-17</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/04/17/session-cookie-jwt/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/03/14/postgresql-tutorial/">
-        Postgresql Tutorial
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        psql 数据库名  –连接数据库select rolname,rolpassword from pg_authid;–查看用户名密码select usename,passwd from pg_shadow;–查看用户名密码select version();    – 查看版本select current_database();–查看当前数据库\l                    –查...
-      
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-03-14</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/03/14/postgresql-tutorial/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2020/06/03/sharding-ids-at-instagram/">
-        Instagram 的分片与 ID 设计
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <!-- toc -->
-
-<p>Instagram上有大量的数据，每分钟就有超过25张的图片和90个点赞。为了确保所有重要的数据都能被合理存储并且及时得被提取应用，我们对数据进行了分片（sharding）——也就是说，我们把数据放到多个桶（bucket）中，每个桶里都有一部分数据。</p>
-<p>我们的应用服务器上运行的是Django， 后端数据库是PostgreSQL。对数据分片首先要决定是否要保留PostgreSQL作为主要的数据存储库，是否要采用其他的数据库。经过评估一些不同的数据库解决方案，我们最终确定最适合的方案是在PostgreSQL数据库集群上实现数据分片。</p>
-<p>然而在把数据写到数据库之前，我们还要解决如何给数据（例如Instagram上发布的没一张图片）加上唯一标识符的问题。在单一数据库上的典型解法——使用数据库自带的自增主键功能——在当数据需要被同时插入到多个数据库时就不适用了。文章的下面就来讲讲我们是如何解决这个问题的</p>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2020-06-03</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2020/06/03/sharding-ids-at-instagram/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2020/05/29/tmux-tutorial/">
-        Tmux 使用教程
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p>Tmux 是一个终端复用工具，和 screen 一样，screen 相对简单好使，tmux 更高级。</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CentOS</span></span><br><span class="line">yum install -y tmux</span><br><span class="line"></span><br><span class="line"><span class="comment"># MacOS</span></span><br><span class="line">brew install tmux</span><br></pre></td></tr></table></figure>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2020-05-29</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2020/05/29/tmux-tutorial/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2019/05/12/sqlalchemy-usage/">
-        Sqlalchemy 基本用法
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p>Sqlalchemy 基本用法</p>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2019-05-12</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2019/05/12/sqlalchemy-usage/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2019/01/15/treenode/">
-        二叉树
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p><code>LeetCode</code> 二叉树题解汇总</p>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2019-01-15</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2019/01/15/treenode/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2018/12/03/csv-error/">
-        Python 处理 Csv 文件常见错误
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p>在用 Python 处理 csv 文件时遇到2个错误，记录下处理方法。</p>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2018-12-03</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2018/12/03/csv-error/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2018/11/21/centos-install-phantomjs/">
-        Centos 安装 PhantomJS
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p>PhantomJS 已经不再开发了，Seleniumn 也警告使用 PhantomJS 是过时的，推荐使用 headless 版的 Chrome 或者 Firefox，但是有时候需要用到，够用就行，而且在 Linux 下安装也相对简单。</p>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2018-11-21</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2018/11/21/centos-install-phantomjs/'>
+          <a class='readmore' href='/2018/03/09/python-reloader/'>
             阅读全文
           </a>
         </div>
@@ -799,15 +360,15 @@
       <br>
       <div class="prev-next">
         
-        <p class="current">
-          1 / 3
-        </p>
-        
-          <a class="next" rel="next" href="/categories/%E7%AC%94%E8%AE%B0/page/2/">
-            <section class="post next white-box shadow">
-              &nbsp;下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i>
+          <a class="prev" rel="prev" href="/tags/Python3/">
+            <section class="post prev white-box shadow" >
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页&nbsp;
             </section>
           </a>
+        
+        <p class="current">
+          2 / 2
+        </p>
         
       </div>
     

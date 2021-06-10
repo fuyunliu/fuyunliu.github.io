@@ -5,8 +5,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta http-equiv='x-dns-prefetch-control' content='on' />
@@ -21,9 +19,15 @@
 
   <!-- 页面元数据 -->
   
-  <title>分类：笔记 - 听听那冷雨</title>
+  <title>数据科学中的各种相似性度量及其实现 - 听听那冷雨</title>
+  
+    <meta name="keywords" content="Python3">
   
 
+  
+    <meta name="description" content="
+
+欧氏距离(Euclidean Distance)123456789101112131415161718192021222324from math import *import numpy as npdef euclidean_distance(x, y):    # 方法一    # d = sqrt(sum...">
   
 
   <!-- feed -->
@@ -267,7 +271,7 @@
     <div id="l_cover">
   
     
-        <div id="full" class='cover-wrapper  dock' style="display: none;">
+        <div id="full" class='cover-wrapper post dock' style="display: none;">
           
             <div class='cover-bg lazyload placeholder' data-bg="https://cdn.jsdelivr.net/gh/volantis-x/cdn-wallpaper-minimalist/2020/033.jpg"></div>
           
@@ -300,522 +304,212 @@
       <div class='body-wrapper' id="pjax-container">
         
 
-
 <div class='l_main'>
+  <article class="article post white-box reveal md shadow article-type-post" id="post" itemscope itemprop="blogPost">
   
-    
-      
-  <section class="post-list">
-    
-      
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-      
+
+
+  
+  <div class="article-meta" id="top">
     
     
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
     
-    <h2 class="article-title" >
-      <a href="/2021/06/10/similarity-measures-in-python/">
+      <h1 class="title">
         数据科学中的各种相似性度量及其实现
-      </a>
-    </h2>
-  
-  <div class='md'>
+      </h1>
+      <div class='new-meta-box'>
+        
+          
+            
+<div class='new-meta-item author'>
+  <a class='author' href="/" rel="nofollow">
+    <img no-lazy src="/images/avatar.jpg">
+    <p>听听那冷雨</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class='new-meta-item category'>
+    <a class='notlink'>
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：2021年6月10日</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  <div class="new-meta-item browse leancloud">
+    <a class='notlink'>
+      
+      <div id="lc-pv" data-title="数据科学中的各种相似性度量及其实现" data-path="/2021/06/10/similarity-measures-in-python/">
+        <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
+        <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+        次浏览
+      </div>
+    </a>
+  </div>
+
+
+          
+        
+      </div>
     
-      <!-- toc -->
+  </div>
+
+
+  
+  <!-- toc -->
 
 <h2 id="欧氏距离-Euclidean-Distance"><a href="#欧氏距离-Euclidean-Distance" class="headerlink" title="欧氏距离(Euclidean Distance)"></a>欧氏距离(Euclidean Distance)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">euclidean_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = sqrt(sum(pow(a - b, 2) for a, b in zip(x, y)))</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=2)</span></span><br><span class="line"></span><br><span class="line">    d = np.sqrt(np.<span class="built_in">sum</span>(np.square(x - y)))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">euclidean_distance(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> euclidean</span><br><span class="line">euclidean(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-    
-  </div>
+
+<a id="more"></a>
+
+<h2 id="标准化欧氏距离-Standardized-Euclidean-Distance"><a href="#标准化欧氏距离-Standardized-Euclidean-Distance" class="headerlink" title="标准化欧氏距离(Standardized Euclidean Distance)"></a>标准化欧氏距离(Standardized Euclidean Distance)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> seuclidean</span><br><span class="line">seuclidean([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], [<span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.1</span>])  <span class="comment"># 4.4721359549995796</span></span><br><span class="line">seuclidean([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], [<span class="number">1</span>, <span class="number">0.1</span>, <span class="number">0.1</span>])  <span class="comment"># 3.3166247903553998</span></span><br><span class="line">seuclidean([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], [<span class="number">10</span>, <span class="number">0.1</span>, <span class="number">0.1</span>])  <span class="comment"># 3.1780497164141406</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="马氏距离-Mahalanobis-Distance"><a href="#马氏距离-Mahalanobis-Distance" class="headerlink" title="马氏距离(Mahalanobis Distance)"></a>马氏距离(Mahalanobis Distance)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> mahalanobis</span><br><span class="line">iv = [[<span class="number">1</span>, <span class="number">0.5</span>, <span class="number">0.5</span>], [<span class="number">0.5</span>, <span class="number">1</span>, <span class="number">0.5</span>], [<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">1</span>]]</span><br><span class="line">mahalanobis([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], iv)  <span class="comment"># 1.0</span></span><br><span class="line">mahalanobis([<span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], iv)  <span class="comment"># 1.0</span></span><br><span class="line">mahalanobis([<span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], iv)  <span class="comment"># 1.7320508075688772</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="编辑距离"><a href="#编辑距离" class="headerlink" title="编辑距离"></a>编辑距离</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Levenshtein</span><br><span class="line"></span><br><span class="line">s1 = <span class="string">&#x27;Hello, World!&#x27;</span></span><br><span class="line">s2 = <span class="string">&#x27;I am very happy!&#x27;</span></span><br><span class="line"></span><br><span class="line">Levenshtein.distance(s1, s2)  <span class="comment"># 14</span></span><br><span class="line">Levenshtein.ratio(s1, s2)  <span class="comment"># 0.20689655172413793</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="曼哈顿距离-Manhattan-Distance"><a href="#曼哈顿距离-Manhattan-Distance" class="headerlink" title="曼哈顿距离(Manhattan Distance)"></a>曼哈顿距离(Manhattan Distance)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">manhattan_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = sum(abs(a - b) for a, b in zip(x, y))</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=1)</span></span><br><span class="line"></span><br><span class="line">    d = np.<span class="built_in">sum</span>(np.<span class="built_in">abs</span>(x - y))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">manhattan_distance(x, y)  <span class="comment"># 25</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> cityblock</span><br><span class="line">cityblock(x, y)  <span class="comment"># 25</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="切比雪夫距离-Chebyshev-Distance"><a href="#切比雪夫距离-Chebyshev-Distance" class="headerlink" title="切比雪夫距离(Chebyshev Distance)"></a>切比雪夫距离(Chebyshev Distance)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">chebyshev_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=np.inf)</span></span><br><span class="line"></span><br><span class="line">    d = np.<span class="built_in">abs</span>(x - y).<span class="built_in">max</span>()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">chebyshev_distance(x, y)  <span class="comment"># 5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> chebyshev</span><br><span class="line">chebyshev(x, y)  <span class="comment"># 5</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="闵可夫斯基距离-Minkowski-Distance"><a href="#闵可夫斯基距离-Minkowski-Distance" class="headerlink" title="闵可夫斯基距离(Minkowski Distance)"></a>闵可夫斯基距离(Minkowski Distance)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> decimal <span class="keyword">import</span> Decimal</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">nth_root</span>(<span class="params">value, n_root</span>):</span></span><br><span class="line">    root_value = <span class="number">1</span> / <span class="built_in">float</span>(n_root)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">round</span>(Decimal(value)**Decimal(root_value), <span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">minkowski_distance</span>(<span class="params">x, y, p_value</span>):</span></span><br><span class="line">    d = nth_root(<span class="built_in">sum</span>(<span class="built_in">pow</span>(<span class="built_in">abs</span>(a - b), p_value) <span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="built_in">zip</span>(x, y)), p_value)</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">minkowski_distance(x, y, <span class="number">1</span>)  <span class="comment"># Decimal(&#x27;25.000&#x27;)</span></span><br><span class="line">minkowski_distance(x, y, <span class="number">2</span>)  <span class="comment"># Decimal(&#x27;11.180&#x27;)</span></span><br><span class="line">minkowski_distance(x, y, <span class="number">3</span>)  <span class="comment"># Decimal(&#x27;8.550&#x27;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">minkowski_distance</span>(<span class="params">x, y, <span class="built_in">ord</span>=<span class="number">1</span></span>):</span></span><br><span class="line">    <span class="comment"># ord = 1 一范数</span></span><br><span class="line">    <span class="comment"># ord = 2 二范数</span></span><br><span class="line">    <span class="comment"># ord = np.inf 无穷范数</span></span><br><span class="line">    d = np.linalg.norm(x - y, <span class="built_in">ord</span>=<span class="built_in">ord</span>)</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> minkowski</span><br><span class="line">minkowski(x, y, p=<span class="number">1</span>)  <span class="comment"># 25.0</span></span><br><span class="line">minkowski(x, y, p=<span class="number">2</span>)  <span class="comment"># 11.180339887498949</span></span><br><span class="line">minkowski(x, y, p=<span class="number">3</span>)  <span class="comment"># 8.549879733383484</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="汉明距离-Hamming-Distance"><a href="#汉明距离-Hamming-Distance" class="headerlink" title="汉明距离(Hamming Distance)"></a>汉明距离(Hamming Distance)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hamming_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = len(np.nonzero(x - y)[0])</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    d = np.shape(np.nonzero(x - y)[<span class="number">0</span>])[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">hamming_distance(x, y)  <span class="comment"># 5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> hamming</span><br><span class="line">hamming(x, y)  <span class="comment"># 1.0</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="余弦相似度-Cosine-Similarity"><a href="#余弦相似度-Cosine-Similarity" class="headerlink" title="余弦相似度(Cosine Similarity)"></a>余弦相似度(Cosine Similarity)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cosine_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    d = np.dot(x, y) / (np.linalg.norm(x) * np.linalg.norm(y))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">cosine_distance(x, y)  <span class="comment"># 0.9649505047327671</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sklearn.metrics.pairwise <span class="keyword">import</span> cosine_similarity</span><br><span class="line">x, y = np.array(x), np.array(y)</span><br><span class="line">cosine_similarity(x.reshape(<span class="number">1</span>, -<span class="number">1</span>), y.reshape(<span class="number">1</span>, -<span class="number">1</span>))  <span class="comment"># array([[0.9649505]])</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="皮尔森相关系数-Pearson-Correlation-Coefficient"><a href="#皮尔森相关系数-Pearson-Correlation-Coefficient" class="headerlink" title="皮尔森相关系数(Pearson Correlation Coefficient)"></a>皮尔森相关系数(Pearson Correlation Coefficient)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.stats <span class="keyword">import</span> pearsonr</span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">10</span>, <span class="number">9</span>, <span class="number">2.5</span>, <span class="number">6</span>, <span class="number">4</span>]</span><br><span class="line">coe, pv = pearsonr(x, y)  <span class="comment"># coe = -0.7426106572325057, pv = 0.1505558088534455</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="杰卡德相似系数-Jaccard-Similarity-Coefficient-及杰卡德距离-Jaccard-Distance"><a href="#杰卡德相似系数-Jaccard-Similarity-Coefficient-及杰卡德距离-Jaccard-Distance" class="headerlink" title="杰卡德相似系数(Jaccard Similarity Coefficient)及杰卡德距离(Jaccard Distance)"></a>杰卡德相似系数(Jaccard Similarity Coefficient)及杰卡德距离(Jaccard Distance)</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> jaccard</span><br><span class="line"></span><br><span class="line">x = np.array([<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>])</span><br><span class="line">y = np.array([<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>])</span><br><span class="line">jaccard(x, y)  <span class="comment"># 0.75</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
   
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-06-10</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
+  
+    
+    <div class='footer'>
       
-        <div>
-          <a class='readmore' href='/2021/06/10/similarity-measures-in-python/'>
-            阅读全文
-          </a>
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=https://fuyunliu.github.io/2021/06/10/similarity-measures-in-python/>https://fuyunliu.github.io/2021/06/10/similarity-measures-in-python/</a></p>
+              
+            
+          </blockquote>
         </div>
+      
       
     </div>
   
+  
+    
 
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-06-10T11:29:00+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：2021年6月10日</p>
+  </a>
 </div>
 
-          </div>
         
       
         
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
+          
   
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/06/08/log-anomaly-detection/">
-        基于 LSTM 深度学习模型的日志异常检测
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <!-- toc -->
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Python3/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>Python3</p></a></div>
 
-<h2 id="日志模式识别"><a href="#日志模式识别" class="headerlink" title="日志模式识别"></a>日志模式识别</h2><h3 id="日志样例"><a href="#日志样例" class="headerlink" title="日志样例"></a>日志样例</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">2021-03-11 09:23:17,195 [OCKey:HlTOgWeM-LYFkTMn2wsXcEd] DEBUG com.dawninfotek.base.security.WebAppSafeGuard - BaseWebAppSafeGuard.class::key = beneAcctNo4 value = 1</span><br><span class="line">2021-03-11 09:23:17,849 [OCKey:zQXeCzqsWdY9_GliHIoAIpI] DEBUG com.dawninfotek.base.action.BaseDispatchAction - com.dawninfotek.easybanking.web.pr.olbfinance.polbfinancemyfinancenew.POLBFinanceMyFinanceAction::Base BaseDispatchAction - link6::37003747</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::Getting a connection from dataSource</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::got connection com.ibm.ws.rsadapter.jdbc.WSJdbcConnection@3bfa1e18 from dataSource: auto Commit = false</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Connection</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Preparing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Executing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Parameters: [42300205]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Types: [java.lang.String]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.easybanking.base.process.EasyBankingProcessManager - com.dawninfotek.easybanking.base.process.EasyBankingProcessManager::Start to commit transaction for DAC:EasyBankingSample</span><br></pre></td></tr></table></figure>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
+
         
-        <time>2021-06-08</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
       
-        <div>
-          <a class='readmore' href='/2021/06/08/log-anomaly-detection/'>
-            阅读全文
-          </a>
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        
+        <div class='hoverbox'>
+          <a class='share'><img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/wechat.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/wechat.png" srcset="data:image/png;base64,666"></a>
+          <div class='target'>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATgAAAE4CAAAAADqFLC2AAADp0lEQVR42u3aS3LCMBAFQO5/6WSfKkrzsz2Q1i4B21KTxcsbXj9Wab0QgAMHDpwFDtwSuFdx/b3+7YPevH6637vXT9efnt8+Lzhw4MCBAwcO3DK4cAAMwkU30r3/1H7D14MDBw4cOHDgwC2FqwbeahA+vf+uDyZ6XnDgwIEDBw4cuG+Bmyois8/LPgccOHDgwIEDBw5cb0BcDcDVDwAcOHDgwIEDB+6/wGUHtNkNRIvG7CC5OqB+bJIPDhw4cODAgQM3BJdd2aJw28/l84IDBw4cOHDgwC2BmyocowH2qgH4z00LHDhw4MCBAwduC9zVB7xrsDw1UD86gAMHDhw4cODALYOrDoKzwXgaemzQHAUGBw4cOHDgwIFbAhcNvlMBsnqAbEDOBuXoBwAOHDhw4MCBA7cFLltYVovDq8CrA/AoJDhw4MCBAwcO3Fa4atDsDpafGmBXAzY4cODAgQMHDtxWuGgBOFWATgFmr2sPvsGBAwcOHDhw4JbAVQNnthicLiirA+5ukQoOHDhw4MCBA7cNLht8r/ri4dOF6nF/4MCBAwcOHDhwy+CyG7gKcmrgHN1v+h8BcODAgQMHDhy4JXDZQjL7enXQ3Q2y2YIyHYDBgQMHDhw4cOCWwXUH0tVB8tQAuVtgggMHDhw4cODAfQrcVCF4VbC9KnBH/wCODTA4cODAgQMHDtzDcNlB8vTAOBtIsyDR/RzvBw4cOHDgwIEDtwSuuqoBtFt8Tr2/fB5w4MCBAwcOHLglcNUCsTo47r4vu4/sc8CBAwcOHDhw4D4drlos3hVos/vvFprgwIEDBw4cOHCfCtcNnlGIapDNBvhssQoOHDhw4MCBA7cNLnqQ6oa6RWM2iFcDb/h6cODAgQMHDhy4ZXDVB3SLySnI7sC7HIDBgQMHDhw4cOAegusesFpMdgGq960WsuDAgQMHDhw4cNvg0gGw+IXCqQB82kd1v+GBNThw4MCBAwcO3FK4buDNFp7d52YPXv2AwIEDBw4cOHDgtsFNBcT0BpIHvQ3mdF5w4MCBAwcOHLhlcFMFYzeoZgvK6POmgjg4cODAgQMHDtxWuOlisPv7qeCdDfbhIhMcOHDgwIEDB+5D4bI/V2Gy980WoeHzggMHDhw4cODAfTlct4iMFqrd+0cLT3DgwIEDBw4cuO1w2YH0U8F46vnpohYcOHDgwIEDB24ZXHVwW93gVJDNBu7qwBocOHDgwIEDB24bnJVb4MCBAwfOAgfu4fULHT0AJiOwR90AAAAASUVORK5CYII=">
+          </div>
         </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/04/17/session-cookie-jwt/">
-        Session 、Cookie 和 JWT 详解
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <!-- toc -->
-
-<h2 id="什么是-Cookie"><a href="#什么是-Cookie" class="headerlink" title="什么是 Cookie"></a>什么是 Cookie</h2><p>HTTP Cookie（也叫 Web Cookie 或浏览器 Cookie）是服务器发送到用户浏览器并保存在本地的一小块数据，它会在浏览器下次向同一服务器再发起请求时被携带并发送到服务器上。通常，它用于告知服务端两个请求是否来自同一浏览器，如保持用户的登录状态。Cookie 使基于无状态的HTTP协议记录稳定的状态信息成为了可能。</p>
-<p>Cookie 主要用于以下三个方面：</p>
-<ol>
-<li>会话状态管理（如用户登录状态、购物车、游戏分数或其它需要记录的信息）</li>
-<li>个性化设置（如用户自定义设置、主题等）</li>
-<li>浏览器行为跟踪（如跟踪分析用户行为等）</li>
-</ol>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-04-17</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/04/17/session-cookie-jwt/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/03/14/postgresql-tutorial/">
-        Postgresql Tutorial
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      
-        psql 数据库名  –连接数据库select rolname,rolpassword from pg_authid;–查看用户名密码select usename,passwd from pg_shadow;–查看用户名密码select version();    – 查看版本select current_database();–查看当前数据库\l                    –查...
       
     
   </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-03-14</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/03/14/postgresql-tutorial/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
 </div>
 
-          </div>
+
+
         
       
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2020/06/03/sharding-ids-at-instagram/">
-        Instagram 的分片与 ID 设计
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <!-- toc -->
-
-<p>Instagram上有大量的数据，每分钟就有超过25张的图片和90个点赞。为了确保所有重要的数据都能被合理存储并且及时得被提取应用，我们对数据进行了分片（sharding）——也就是说，我们把数据放到多个桶（bucket）中，每个桶里都有一部分数据。</p>
-<p>我们的应用服务器上运行的是Django， 后端数据库是PostgreSQL。对数据分片首先要决定是否要保留PostgreSQL作为主要的数据存储库，是否要采用其他的数据库。经过评估一些不同的数据库解决方案，我们最终确定最适合的方案是在PostgreSQL数据库集群上实现数据分片。</p>
-<p>然而在把数据写到数据库之前，我们还要解决如何给数据（例如Instagram上发布的没一张图片）加上唯一标识符的问题。在单一数据库上的典型解法——使用数据库自带的自增主键功能——在当数据需要被同时插入到多个数据库时就不适用了。文章的下面就来讲讲我们是如何解决这个问题的</p>
-    
+    </div>
   </div>
+
+
   
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2020-06-03</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
+  
+
+  
+    <div class="prev-next">
       
-        <div>
-          <a class='readmore' href='/2020/06/03/sharding-ids-at-instagram/'>
-            阅读全文
-          </a>
-        </div>
+      
+        <a class='next' href='/2021/06/08/log-anomaly-detection/'>
+          <p class='title'>基于 LSTM 深度学习模型的日志异常检测<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>
+
+日志模式识别日志样例123456789102021-03-11 09:23:17,195 [OCKey:HlTOgWeM-LYFkTMn2wsXcEd] DEBUG com.dawninfo...</p>
+        </a>
       
     </div>
   
+</article>
 
+
+  
+
+  <article class="post white-box reveal shadow" id="comments">
+    <p ct><i class='fas fa-comments'></i> 评论</p>
+    
+    <div id="valine_container" class="valine_thread">
+  <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
 </div>
 
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2020/05/29/tmux-tutorial/">
-        Tmux 使用教程
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p>Tmux 是一个终端复用工具，和 screen 一样，screen 相对简单好使，tmux 更高级。</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CentOS</span></span><br><span class="line">yum install -y tmux</span><br><span class="line"></span><br><span class="line"><span class="comment"># MacOS</span></span><br><span class="line">brew install tmux</span><br></pre></td></tr></table></figure>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2020-05-29</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2020/05/29/tmux-tutorial/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2019/05/12/sqlalchemy-usage/">
-        Sqlalchemy 基本用法
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p>Sqlalchemy 基本用法</p>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2019-05-12</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2019/05/12/sqlalchemy-usage/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2019/01/15/treenode/">
-        二叉树
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p><code>LeetCode</code> 二叉树题解汇总</p>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2019-01-15</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2019/01/15/treenode/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2018/12/03/csv-error/">
-        Python 处理 Csv 文件常见错误
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p>在用 Python 处理 csv 文件时遇到2个错误，记录下处理方法。</p>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2018-12-03</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2018/12/03/csv-error/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2018/11/21/centos-install-phantomjs/">
-        Centos 安装 PhantomJS
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p>PhantomJS 已经不再开发了，Seleniumn 也警告使用 PhantomJS 是过时的，推荐使用 headless 版的 Chrome 或者 Firefox，但是有时候需要用到，够用就行，而且在 Linux 下安装也相对简单。</p>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2018-11-21</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2018/11/21/centos-install-phantomjs/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-    
-  </section>
-  
-    
-      <br>
-      <div class="prev-next">
-        
-        <p class="current">
-          1 / 3
-        </p>
-        
-          <a class="next" rel="next" href="/categories/%E7%AC%94%E8%AE%B0/page/2/">
-            <section class="post next white-box shadow">
-              &nbsp;下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i>
-            </section>
-          </a>
-        
-      </div>
-    
-  
+  </article>
 
 
-    
-  
+
+
+
+
 </div>
 <aside class='l_side'>
   
@@ -823,126 +517,28 @@
     
     
 
-<section class="widget blogger shadow desktop mobile">
-  <div class='content'>
-    
-      
-        <a class='avatar flat-box rectangle' target="_blank" rel="noopener" href='https://github.com/fuyunliu'>
-          <img no-lazy src='/images/avatar.jpg'/>
-        </a>
-      
-    
-    
-      <div class='text'>
-        
-        
-        
-          <p><span id="jinrishici-sentence">听听那冷雨</span></p>
-          <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
-        
-      </div>
-    
-    
-      <div class="social-wrapper">
-        
-          
-            <a href="/atom.xml"
-              class="social fas fa-rss flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="mailto:liufuyunlfy@gmail.com"
-              class="social fas fa-envelope flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="https://github.com/fuyunliu"
-              class="social fab fa-github flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="/"
-              class="social fas fa-headphones-alt flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-      </div>
-    
-  </div>
-</section>
 
-  
 
-  
-    
-    
-  
-
-  <section class="widget category shadow desktop">
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
     
   <header>
     
-      <a href='categories/'><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i><span class='name'>文章分类</span></a>
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
     
   </header>
 
 
     <div class='content'>
-      <ul class="entry navigation">
-        
-          <li><a class="flat-box"
-            title="/categories/%E7%AC%94%E8%AE%B0/" href="/categories/%E7%AC%94%E8%AE%B0/"
-            id="categoriesE7AC94E8AEB0"
-            ><div class='name'>笔记</div><div class='badge'>(23)</div></a></li>
-        
-      </ul>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-Euclidean-Distance"><span class="toc-text">欧氏距离(Euclidean Distance)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E5%87%86%E5%8C%96%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-Standardized-Euclidean-Distance"><span class="toc-text">标准化欧氏距离(Standardized Euclidean Distance)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A9%AC%E6%B0%8F%E8%B7%9D%E7%A6%BB-Mahalanobis-Distance"><span class="toc-text">马氏距离(Mahalanobis Distance)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB"><span class="toc-text">编辑距离</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9B%BC%E5%93%88%E9%A1%BF%E8%B7%9D%E7%A6%BB-Manhattan-Distance"><span class="toc-text">曼哈顿距离(Manhattan Distance)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%87%E6%AF%94%E9%9B%AA%E5%A4%AB%E8%B7%9D%E7%A6%BB-Chebyshev-Distance"><span class="toc-text">切比雪夫距离(Chebyshev Distance)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%B5%E5%8F%AF%E5%A4%AB%E6%96%AF%E5%9F%BA%E8%B7%9D%E7%A6%BB-Minkowski-Distance"><span class="toc-text">闵可夫斯基距离(Minkowski Distance)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B1%89%E6%98%8E%E8%B7%9D%E7%A6%BB-Hamming-Distance"><span class="toc-text">汉明距离(Hamming Distance)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%99%E5%BC%A6%E7%9B%B8%E4%BC%BC%E5%BA%A6-Cosine-Similarity"><span class="toc-text">余弦相似度(Cosine Similarity)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9A%AE%E5%B0%94%E6%A3%AE%E7%9B%B8%E5%85%B3%E7%B3%BB%E6%95%B0-Pearson-Correlation-Coefficient"><span class="toc-text">皮尔森相关系数(Pearson Correlation Coefficient)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%B0%E5%8D%A1%E5%BE%B7%E7%9B%B8%E4%BC%BC%E7%B3%BB%E6%95%B0-Jaccard-Similarity-Coefficient-%E5%8F%8A%E6%9D%B0%E5%8D%A1%E5%BE%B7%E8%B7%9D%E7%A6%BB-Jaccard-Distance"><span class="toc-text">杰卡德相似系数(Jaccard Similarity Coefficient)及杰卡德距离(Jaccard Distance)</span></a></li></ol>
     </div>
   </section>
 
-
-  
-
-  
-    
-    
-  
-
-  <section class="widget tagcloud shadow desktop mobile">
-    
-  <header>
-    
-      <a href='tags/'><i class="fas fa-tags fa-fw" aria-hidden="true"></i><span class='name'>热门标签</span></a>
-    
-  </header>
-
-
-    <div class='content'>
-      <a href="/tags/Algorithm/" style="font-size: 14px; color: #999">Algorithm</a> <a href="/tags/CentOS/" style="font-size: 20.67px; color: #6c6c6c">CentOS</a> <a href="/tags/Cookie/" style="font-size: 14px; color: #999">Cookie</a> <a href="/tags/Drain3/" style="font-size: 14px; color: #999">Drain3</a> <a href="/tags/FastText/" style="font-size: 14px; color: #999">FastText</a> <a href="/tags/Flask/" style="font-size: 17.33px; color: #828282">Flask</a> <a href="/tags/HanLP/" style="font-size: 14px; color: #999">HanLP</a> <a href="/tags/JWT/" style="font-size: 14px; color: #999">JWT</a> <a href="/tags/LSTM/" style="font-size: 17.33px; color: #828282">LSTM</a> <a href="/tags/MySQL/" style="font-size: 17.33px; color: #828282">MySQL</a> <a href="/tags/PostgreSQL/" style="font-size: 14px; color: #999">PostgreSQL</a> <a href="/tags/Python3/" style="font-size: 24px; color: #555">Python3</a> <a href="/tags/Session/" style="font-size: 14px; color: #999">Session</a> <a href="/tags/Sqlalchemy/" style="font-size: 14px; color: #999">Sqlalchemy</a> <a href="/tags/%E5%B0%8F%E8%AF%B4/" style="font-size: 14px; color: #999">小说</a>
-    </div>
-  </section>
-
-
-  
 
   
 
 
 </aside>
+
 
 
         
@@ -952,8 +548,8 @@
 
 <script>
   window.pdata={}
-  pdata.ispage=false;
-  pdata.postTitle="";
+  pdata.ispage=true;
+  pdata.postTitle="数据科学中的各种相似性度量及其实现";
   pdata.commentPath="";
   pdata.commentPlaceholder="";
 
