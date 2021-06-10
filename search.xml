@@ -488,138 +488,6 @@ Go 语言的创造者之一</p></blockquote>
       </tags>
   </entry>
   <entry>
-    <title>Instagram 的分片与 ID 设计</title>
-    <url>/2020/06/03/sharding-ids-at-instagram/</url>
-    <content><![CDATA[<!-- toc -->
-
-<p>Instagram上有大量的数据，每分钟就有超过25张的图片和90个点赞。为了确保所有重要的数据都能被合理存储并且及时得被提取应用，我们对数据进行了分片（sharding）——也就是说，我们把数据放到多个桶（bucket）中，每个桶里都有一部分数据。</p>
-<p>我们的应用服务器上运行的是Django， 后端数据库是PostgreSQL。对数据分片首先要决定是否要保留PostgreSQL作为主要的数据存储库，是否要采用其他的数据库。经过评估一些不同的数据库解决方案，我们最终确定最适合的方案是在PostgreSQL数据库集群上实现数据分片。</p>
-<p>然而在把数据写到数据库之前，我们还要解决如何给数据（例如Instagram上发布的没一张图片）加上唯一标识符的问题。在单一数据库上的典型解法——使用数据库自带的自增主键功能——在当数据需要被同时插入到多个数据库时就不适用了。文章的下面就来讲讲我们是如何解决这个问题的</p>
-<a id="more"></a>
-
-<p>开始前，我们先列出系统所需要的所有重要的功能。</p>
-<blockquote>
-<ol>
-<li>产生的数据ID需是可以按时间排序的。（比如对一列图片数据的ID进行排序，可以不需要提取太多图片本身的信息）</li>
-<li>理想的ID是64位的。（这样索引更小，存储也更优，像Redis）</li>
-<li>系统要尽量少的引用“可变动因素”——在很少工程师的情况下还可以扩张Instagram的很大一部分原因就是，我们相信简单易懂的方案。</li>
-</ol>
-</blockquote>
-<h2 id="现有的解决方案"><a href="#现有的解决方案" class="headerlink" title="现有的解决方案"></a>现有的解决方案</h2><h3 id="由Web应用层生成ID"><a href="#由Web应用层生成ID" class="headerlink" title="由Web应用层生成ID"></a>由Web应用层生成ID</h3><p>这种方案将ID的生成完全交到应用层，而不是数据库。例如，MongoDB的ObjectId，就是12字节长并且在最前面加上时间戳进行编码。另一个流行的方案是使用UUIDs。</p>
-<p>优点：</p>
-<blockquote>
-<ol>
-<li>每个应用线程独立生成ID，最小的降低ID生成的失败和竞争。</li>
-<li>如果用时间戳作为ID的起始部分，那么ID可以按时间排序。</li>
-</ol>
-</blockquote>
-<p>缺点：</p>
-<blockquote>
-<ol>
-<li>通常需要更多的存储空间（96位或者更多）来确保ID的合理唯一性。</li>
-<li>一些UUID类型完全是随机的，无法排序。</li>
-</ol>
-</blockquote>
-<h3 id="通过单独的服务产生ID"><a href="#通过单独的服务产生ID" class="headerlink" title="通过单独的服务产生ID"></a>通过单独的服务产生ID</h3><p>例如：Twitter的Snowflake，是一个Thrift服务，使用了Apache Zookeeper来协调各个结点并且产生64为的唯一ID。</p>
-<p>优点：</p>
-<blockquote>
-<ol>
-<li>Snowflake的ID只有64位，是UUID的一半。</li>
-<li>可以放时间戳到ID头，从而可以按时间排序。</li>
-<li>分布式系统保证了系统结点不会挂掉。</li>
-</ol>
-</blockquote>
-<p>缺点：</p>
-<blockquote>
-<p>增加了复杂性，而且引入了更多的“可变动因素”（如ZooKeeper, Snowflake服务器）到系统构架中。</p>
-</blockquote>
-<h3 id="数据库票据（DB-Ticket）服务器"><a href="#数据库票据（DB-Ticket）服务器" class="headerlink" title="数据库票据（DB Ticket）服务器"></a>数据库票据（DB Ticket）服务器</h3><p>利用数据库自带的自增特性来确保唯一性。Flicker采用这一方法，不过还用了两台ticket数据库（一个生成偶数，一个生成奇数）来避免单点失败。</p>
-<p>优点：</p>
-<blockquote>
-<p>数据库好理解，带有易预测的可扩张功能。</p>
-</blockquote>
-<p>缺点：</p>
-<blockquote>
-<ol>
-<li>最终会出现数据写入的瓶颈（尽管Flicker称在高扩展下没有问题）。</li>
-<li>需要管理多的两台服务器（或者EC2实例）。</li>
-<li>如果单独使用数据库，会出现单点失效。如果使用多个数据库，则不能保证ID可以按时间排序。</li>
-</ol>
-</blockquote>
-<p>在所有这些方案中，Twitter的snowflake是最接近的，但是生成ID所需的添加复杂性又和我们的目标冲突。我们的替换方案是采用概念上相近的方法，但是带到PostgreSQL内部实现。</p>
-<h2 id="Instagram-的方案"><a href="#Instagram-的方案" class="headerlink" title="Instagram 的方案"></a>Instagram 的方案</h2><p>我们的分片系统是由上千个“逻辑”分片组成的，由代码映射到少量的物理分片。</p>
-<p>通过这个方法，我们一开始用少数数据库实现，慢慢扩展到更多个数据库，只需要把部分逻辑分片从一台数据库转移到另一台数据库里，不需要重新把数据重新聚合。我们用到的PostgreSQL的schema的特性可以轻松的实现计划和管理。</p>
-<p>Schema（不要和SQL单个表的schema搞混了）是PostgreSQL里的一个逻辑分组功能。每一个PostgreSQL数据库都有好几个schema，每一个schema都有一到多个表。表名在没个schema中都是唯一的，而不是每个数据库，默认情况下，PostgreSQL会把所有数据都放在一个叫“public”的schema中。</p>
-<p>在我们的系统中每个“逻辑”分片都是一个PostgreSQL schema， 每个分片的表（比如照片的“点赞”功能）都存在每个schema中。</p>
-<p>我们通过使用PL/PGSQL, PostgreSQL内部的编程语言，和PostgreSQL现有的自增功能来生成ID。</p>
-<p>每个ID都由下面几个部分组成：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">41位的毫秒级时间（用于产生41年的ID）</span><br><span class="line">13位用来表示逻辑分片的ID</span><br><span class="line">10位的自增序列，模上1024， 意味着每个分片每毫秒可以产生1024个ID</span><br></pre></td></tr></table></figure>
-
-<p>下面通过一个例子说明：比如说现在是2011年的九月九日，我们的纪元是从2011年的一月一号开始。从新纪元开始到此有1387263000毫秒，那么我们把这个数字左移41位来填满ID的头。</p>
-<blockquote>
-<p>id = 1387263000 &lt;&lt;(64 – 41)</p>
-</blockquote>
-<p>接下来， 我们拿来我们准备把这个数据插入的分片ID；如果我们用户ID是31341， 这个分片的ID是 31341%2000 → 1341。 我们接下来把下面13为填满：</p>
-<blockquote>
-<p>id |= 1341 &lt;&lt; (64-41-13)</p>
-</blockquote>
-<p>最后， 我们用所剩的自增序列（每个schema中每个表中这个序列都是唯一的）来填满的后面的位数。 假设这张表中已经有了5000个ID； 我们下一个数据就是5001，我们把它模上1024得到：</p>
-<blockquote>
-<p>id |= （5001%1024）</p>
-</blockquote>
-<p>我们就得到了我们的ID， 我们把这个id作为insert中的RETURNING返回给应用层。</p>
-<p>下面是是实现以上过程的PL/PGSQL代码（这里用的schema是insta5）</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">FUNCTION</span> insta5.next_id(<span class="keyword">OUT</span> <span class="keyword">result</span> <span class="built_in">bigint</span>) <span class="keyword">AS</span> $$</span><br><span class="line"><span class="keyword">DECLARE</span></span><br><span class="line">    our_epoch <span class="built_in">bigint</span> := <span class="number">1314220021721</span>;</span><br><span class="line">    seq_id bigint;</span><br><span class="line">    now_millis bigint;</span><br><span class="line">    shard_id int := 5;</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    <span class="keyword">SELECT</span> <span class="keyword">nextval</span>(<span class="string">&#x27;insta5.table_id_seq&#x27;</span>) %% <span class="number">1024</span> <span class="keyword">INTO</span> seq_id;</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="keyword">FLOOR</span>(<span class="keyword">EXTRACT</span>(EPOCH <span class="keyword">FROM</span> clock_timestamp()) * <span class="number">1000</span>) <span class="keyword">INTO</span> now_millis;</span><br><span class="line">    result := (now_millis - our_epoch) &lt;&lt; 23;</span><br><span class="line">    result := result | (shard_id &lt;&lt; 10);</span><br><span class="line">    result := result | (seq_id);</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line">$$ LANGUAGE PLPGSQL;</span><br></pre></td></tr></table></figure>
-
-<p>要生成表示执行下面的部分：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> insta5.our_table(</span><br><span class="line">    <span class="string">&quot;id&quot;</span> <span class="built_in">bigint</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> insta5.next_id(),</span><br><span class="line">    ... rest <span class="keyword">of</span> <span class="keyword">table</span> <span class="keyword">schema</span> ...</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-
-<p>成了！我们得到了应用中唯一的主键（还有一个好处是，ID中包含了分片ID可以用来轻松映射）。我们已经把这个方法用在产品中，并且对结果感到非常满意。</p>
-<p>本文来自：<a href="https://juejin.im/post/58de0676da2f60005fbec568">Instagram 的分片与 ID 设计</a></p>
-]]></content>
-      <categories>
-        <category>笔记</category>
-      </categories>
-      <tags>
-        <tag>Algorithm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>数据科学中的各种相似性度量及其实现</title>
-    <url>/2021/06/10/similarity-measures-in-python/</url>
-    <content><![CDATA[<!-- toc -->
-
-<h2 id="欧氏距离-Euclidean-Distance"><a href="#欧氏距离-Euclidean-Distance" class="headerlink" title="欧氏距离(Euclidean Distance)"></a>欧氏距离(Euclidean Distance)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">euclidean_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = sqrt(sum(pow(a - b, 2) for a, b in zip(x, y)))</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=2)</span></span><br><span class="line"></span><br><span class="line">    d = np.sqrt(np.<span class="built_in">sum</span>(np.square(x - y)))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">euclidean_distance(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> euclidean</span><br><span class="line">euclidean(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-
-<h2 id="标准化欧氏距离-Standardized-Euclidean-Distance"><a href="#标准化欧氏距离-Standardized-Euclidean-Distance" class="headerlink" title="标准化欧氏距离(Standardized Euclidean Distance)"></a>标准化欧氏距离(Standardized Euclidean Distance)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> seuclidean</span><br><span class="line">seuclidean([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], [<span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.1</span>])  <span class="comment"># 4.4721359549995796</span></span><br><span class="line">seuclidean([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], [<span class="number">1</span>, <span class="number">0.1</span>, <span class="number">0.1</span>])  <span class="comment"># 3.3166247903553998</span></span><br><span class="line">seuclidean([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], [<span class="number">10</span>, <span class="number">0.1</span>, <span class="number">0.1</span>])  <span class="comment"># 3.1780497164141406</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="马氏距离-Mahalanobis-Distance"><a href="#马氏距离-Mahalanobis-Distance" class="headerlink" title="马氏距离(Mahalanobis Distance)"></a>马氏距离(Mahalanobis Distance)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> mahalanobis</span><br><span class="line">iv = [[<span class="number">1</span>, <span class="number">0.5</span>, <span class="number">0.5</span>], [<span class="number">0.5</span>, <span class="number">1</span>, <span class="number">0.5</span>], [<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">1</span>]]</span><br><span class="line">mahalanobis([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], iv)  <span class="comment"># 1.0</span></span><br><span class="line">mahalanobis([<span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], iv)  <span class="comment"># 1.0</span></span><br><span class="line">mahalanobis([<span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], iv)  <span class="comment"># 1.7320508075688772</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="编辑距离"><a href="#编辑距离" class="headerlink" title="编辑距离"></a>编辑距离</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> Levenshtein</span><br><span class="line"></span><br><span class="line">s1 = <span class="string">&#x27;Hello, World!&#x27;</span></span><br><span class="line">s2 = <span class="string">&#x27;I am very happy!&#x27;</span></span><br><span class="line"></span><br><span class="line">Levenshtein.distance(s1, s2)  <span class="comment"># 14</span></span><br><span class="line">Levenshtein.ratio(s1, s2)  <span class="comment"># 0.20689655172413793</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="曼哈顿距离-Manhattan-Distance"><a href="#曼哈顿距离-Manhattan-Distance" class="headerlink" title="曼哈顿距离(Manhattan Distance)"></a>曼哈顿距离(Manhattan Distance)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">manhattan_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = sum(abs(a - b) for a, b in zip(x, y))</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=1)</span></span><br><span class="line"></span><br><span class="line">    d = np.<span class="built_in">sum</span>(np.<span class="built_in">abs</span>(x - y))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">manhattan_distance(x, y)  <span class="comment"># 25</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> cityblock</span><br><span class="line">cityblock(x, y)  <span class="comment"># 25</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="切比雪夫距离-Chebyshev-Distance"><a href="#切比雪夫距离-Chebyshev-Distance" class="headerlink" title="切比雪夫距离(Chebyshev Distance)"></a>切比雪夫距离(Chebyshev Distance)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">chebyshev_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=np.inf)</span></span><br><span class="line"></span><br><span class="line">    d = np.<span class="built_in">abs</span>(x - y).<span class="built_in">max</span>()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">chebyshev_distance(x, y)  <span class="comment"># 5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> chebyshev</span><br><span class="line">chebyshev(x, y)  <span class="comment"># 5</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="闵可夫斯基距离-Minkowski-Distance"><a href="#闵可夫斯基距离-Minkowski-Distance" class="headerlink" title="闵可夫斯基距离(Minkowski Distance)"></a>闵可夫斯基距离(Minkowski Distance)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> decimal <span class="keyword">import</span> Decimal</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">nth_root</span>(<span class="params">value, n_root</span>):</span></span><br><span class="line">    root_value = <span class="number">1</span> / <span class="built_in">float</span>(n_root)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">round</span>(Decimal(value)**Decimal(root_value), <span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">minkowski_distance</span>(<span class="params">x, y, p_value</span>):</span></span><br><span class="line">    d = nth_root(<span class="built_in">sum</span>(<span class="built_in">pow</span>(<span class="built_in">abs</span>(a - b), p_value) <span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="built_in">zip</span>(x, y)), p_value)</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">minkowski_distance(x, y, <span class="number">1</span>)  <span class="comment"># Decimal(&#x27;25.000&#x27;)</span></span><br><span class="line">minkowski_distance(x, y, <span class="number">2</span>)  <span class="comment"># Decimal(&#x27;11.180&#x27;)</span></span><br><span class="line">minkowski_distance(x, y, <span class="number">3</span>)  <span class="comment"># Decimal(&#x27;8.550&#x27;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">minkowski_distance</span>(<span class="params">x, y, <span class="built_in">ord</span>=<span class="number">1</span></span>):</span></span><br><span class="line">    <span class="comment"># ord = 1 一范数</span></span><br><span class="line">    <span class="comment"># ord = 2 二范数</span></span><br><span class="line">    <span class="comment"># ord = np.inf 无穷范数</span></span><br><span class="line">    d = np.linalg.norm(x - y, <span class="built_in">ord</span>=<span class="built_in">ord</span>)</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> minkowski</span><br><span class="line">minkowski(x, y, p=<span class="number">1</span>)  <span class="comment"># 25.0</span></span><br><span class="line">minkowski(x, y, p=<span class="number">2</span>)  <span class="comment"># 11.180339887498949</span></span><br><span class="line">minkowski(x, y, p=<span class="number">3</span>)  <span class="comment"># 8.549879733383484</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="汉明距离-Hamming-Distance"><a href="#汉明距离-Hamming-Distance" class="headerlink" title="汉明距离(Hamming Distance)"></a>汉明距离(Hamming Distance)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hamming_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = len(np.nonzero(x - y)[0])</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    d = np.shape(np.nonzero(x - y)[<span class="number">0</span>])[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">hamming_distance(x, y)  <span class="comment"># 5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> hamming</span><br><span class="line">hamming(x, y)  <span class="comment"># 1.0</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="余弦相似度-Cosine-Similarity"><a href="#余弦相似度-Cosine-Similarity" class="headerlink" title="余弦相似度(Cosine Similarity)"></a>余弦相似度(Cosine Similarity)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cosine_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    d = np.dot(x, y) / (np.linalg.norm(x) * np.linalg.norm(y))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">cosine_distance(x, y)  <span class="comment"># 0.9649505047327671</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sklearn.metrics.pairwise <span class="keyword">import</span> cosine_similarity</span><br><span class="line">x, y = np.array(x), np.array(y)</span><br><span class="line">cosine_similarity(x.reshape(<span class="number">1</span>, -<span class="number">1</span>), y.reshape(<span class="number">1</span>, -<span class="number">1</span>))  <span class="comment"># array([[0.9649505]])</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="皮尔森相关系数-Pearson-Correlation-Coefficient"><a href="#皮尔森相关系数-Pearson-Correlation-Coefficient" class="headerlink" title="皮尔森相关系数(Pearson Correlation Coefficient)"></a>皮尔森相关系数(Pearson Correlation Coefficient)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.stats <span class="keyword">import</span> pearsonr</span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">10</span>, <span class="number">9</span>, <span class="number">2.5</span>, <span class="number">6</span>, <span class="number">4</span>]</span><br><span class="line">coe, pv = pearsonr(x, y)  <span class="comment"># coe = -0.7426106572325057, pv = 0.1505558088534455</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="杰卡德相似系数-Jaccard-Similarity-Coefficient-及杰卡德距离-Jaccard-Distance"><a href="#杰卡德相似系数-Jaccard-Similarity-Coefficient-及杰卡德距离-Jaccard-Distance" class="headerlink" title="杰卡德相似系数(Jaccard Similarity Coefficient)及杰卡德距离(Jaccard Distance)"></a>杰卡德相似系数(Jaccard Similarity Coefficient)及杰卡德距离(Jaccard Distance)</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> jaccard</span><br><span class="line"></span><br><span class="line">x = np.array([<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>])</span><br><span class="line">y = np.array([<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>])</span><br><span class="line">jaccard(x, y)  <span class="comment"># 0.75</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>笔记</category>
-      </categories>
-      <tags>
-        <tag>Python3</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Sqlalchemy 基本用法</title>
     <url>/2019/05/12/sqlalchemy-usage/</url>
     <content><![CDATA[<p>Sqlalchemy 基本用法</p>
@@ -882,6 +750,150 @@ Go 语言的创造者之一</p></blockquote>
       </categories>
       <tags>
         <tag>CentOS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据科学中的各种相似性度量及其实现</title>
+    <url>/2021/06/10/similarity-measures-in-python/</url>
+    <content><![CDATA[<!-- toc -->
+
+<h2 id="欧氏距离-Euclidean-Distance"><a href="#欧氏距离-Euclidean-Distance" class="headerlink" title="欧氏距离(Euclidean Distance)"></a>欧氏距离(Euclidean Distance)</h2><p>欧氏距离（也称欧几里得度量）指在m维空间中两个点之间的真实距离，或者向量的自然长度（即该点到原点的距离）。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">euclidean_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = sqrt(sum(pow(a - b, 2) for a, b in zip(x, y)))</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=2)</span></span><br><span class="line"></span><br><span class="line">    d = np.sqrt(np.<span class="built_in">sum</span>(np.square(x - y)))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">euclidean_distance(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> euclidean</span><br><span class="line">euclidean(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h2 id="标准化欧氏距离-Standardized-Euclidean-Distance"><a href="#标准化欧氏距离-Standardized-Euclidean-Distance" class="headerlink" title="标准化欧氏距离(Standardized Euclidean Distance)"></a>标准化欧氏距离(Standardized Euclidean Distance)</h2><p>将各个分量都“标准化”到均值、方差相等所得出的距离。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> seuclidean</span><br><span class="line">seuclidean([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], [<span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.1</span>])  <span class="comment"># 4.4721359549995796</span></span><br><span class="line">seuclidean([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], [<span class="number">1</span>, <span class="number">0.1</span>, <span class="number">0.1</span>])  <span class="comment"># 3.3166247903553998</span></span><br><span class="line">seuclidean([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], [<span class="number">10</span>, <span class="number">0.1</span>, <span class="number">0.1</span>])  <span class="comment"># 3.1780497164141406</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="马氏距离-Mahalanobis-Distance"><a href="#马氏距离-Mahalanobis-Distance" class="headerlink" title="马氏距离(Mahalanobis Distance)"></a>马氏距离(Mahalanobis Distance)</h2><p>马哈拉诺比斯距离是由印度统计学家马哈拉诺比斯提出的，表示数据的协方差距离。它是一种有效的计算两个未知样本集的相似度的方法。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> mahalanobis</span><br><span class="line">iv = [[<span class="number">1</span>, <span class="number">0.5</span>, <span class="number">0.5</span>], [<span class="number">0.5</span>, <span class="number">1</span>, <span class="number">0.5</span>], [<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">1</span>]]</span><br><span class="line">mahalanobis([<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], iv)  <span class="comment"># 1.0</span></span><br><span class="line">mahalanobis([<span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], iv)  <span class="comment"># 1.0</span></span><br><span class="line">mahalanobis([<span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>], iv)  <span class="comment"># 1.7320508075688772</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="编辑距离"><a href="#编辑距离" class="headerlink" title="编辑距离"></a>编辑距离</h2><p>编辑距离是针对二个字符串的差异程度的量化量测，量测方式是看至少需要多少次的处理才能将一个字符串变成另一个字符串。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> Levenshtein</span><br><span class="line"></span><br><span class="line">s1 = <span class="string">&#x27;Hello, World!&#x27;</span></span><br><span class="line">s2 = <span class="string">&#x27;I am very happy!&#x27;</span></span><br><span class="line"></span><br><span class="line">Levenshtein.distance(s1, s2)  <span class="comment"># 14</span></span><br><span class="line">Levenshtein.ratio(s1, s2)  <span class="comment"># 0.20689655172413793</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="曼哈顿距离-Manhattan-Distance"><a href="#曼哈顿距离-Manhattan-Distance" class="headerlink" title="曼哈顿距离(Manhattan Distance)"></a>曼哈顿距离(Manhattan Distance)</h2><p>在欧几里得空间的固定直角坐标系上两点所形成的线段对轴产生的投影的距离总和。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">manhattan_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = sum(abs(a - b) for a, b in zip(x, y))</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=1)</span></span><br><span class="line"></span><br><span class="line">    d = np.<span class="built_in">sum</span>(np.<span class="built_in">abs</span>(x - y))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">manhattan_distance(x, y)  <span class="comment"># 25</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> cityblock</span><br><span class="line">cityblock(x, y)  <span class="comment"># 25</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="切比雪夫距离-Chebyshev-Distance"><a href="#切比雪夫距离-Chebyshev-Distance" class="headerlink" title="切比雪夫距离(Chebyshev Distance)"></a>切比雪夫距离(Chebyshev Distance)</h2><p>数学上，切比雪夫距离或是L∞度量是向量空间中的一种度量，二个点之间的距离定义为其各座标数值差的最大值。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">chebyshev_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=np.inf)</span></span><br><span class="line"></span><br><span class="line">    d = np.<span class="built_in">abs</span>(x - y).<span class="built_in">max</span>()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">chebyshev_distance(x, y)  <span class="comment"># 5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> chebyshev</span><br><span class="line">chebyshev(x, y)  <span class="comment"># 5</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="闵可夫斯基距离-Minkowski-Distance"><a href="#闵可夫斯基距离-Minkowski-Distance" class="headerlink" title="闵可夫斯基距离(Minkowski Distance)"></a>闵可夫斯基距离(Minkowski Distance)</h2><p>明氏距离又叫做明可夫斯基距离，是欧氏空间中的一种测度，被看做是欧氏距离和曼哈顿距离的一种推广。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> decimal <span class="keyword">import</span> Decimal</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">nth_root</span>(<span class="params">value, n_root</span>):</span></span><br><span class="line">    root_value = <span class="number">1</span> / <span class="built_in">float</span>(n_root)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">round</span>(Decimal(value)**Decimal(root_value), <span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">minkowski_distance</span>(<span class="params">x, y, p_value</span>):</span></span><br><span class="line">    d = nth_root(<span class="built_in">sum</span>(<span class="built_in">pow</span>(<span class="built_in">abs</span>(a - b), p_value) <span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="built_in">zip</span>(x, y)), p_value)</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">minkowski_distance(x, y, <span class="number">1</span>)  <span class="comment"># Decimal(&#x27;25.000&#x27;)</span></span><br><span class="line">minkowski_distance(x, y, <span class="number">2</span>)  <span class="comment"># Decimal(&#x27;11.180&#x27;)</span></span><br><span class="line">minkowski_distance(x, y, <span class="number">3</span>)  <span class="comment"># Decimal(&#x27;8.550&#x27;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">minkowski_distance</span>(<span class="params">x, y, <span class="built_in">ord</span>=<span class="number">1</span></span>):</span></span><br><span class="line">    <span class="comment"># ord = 1 一范数</span></span><br><span class="line">    <span class="comment"># ord = 2 二范数</span></span><br><span class="line">    <span class="comment"># ord = np.inf 无穷范数</span></span><br><span class="line">    d = np.linalg.norm(x - y, <span class="built_in">ord</span>=<span class="built_in">ord</span>)</span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> minkowski</span><br><span class="line">minkowski(x, y, p=<span class="number">1</span>)  <span class="comment"># 25.0</span></span><br><span class="line">minkowski(x, y, p=<span class="number">2</span>)  <span class="comment"># 11.180339887498949</span></span><br><span class="line">minkowski(x, y, p=<span class="number">3</span>)  <span class="comment"># 8.549879733383484</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="汉明距离-Hamming-Distance"><a href="#汉明距离-Hamming-Distance" class="headerlink" title="汉明距离(Hamming Distance)"></a>汉明距离(Hamming Distance)</h2><p>在信息论中，两个等长字符串之间的汉明距离是两个字符串对应位置的不同字符的个数。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hamming_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = len(np.nonzero(x - y)[0])</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    d = np.shape(np.nonzero(x - y)[<span class="number">0</span>])[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">hamming_distance(x, y)  <span class="comment"># 5</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> hamming</span><br><span class="line">hamming(x, y)  <span class="comment"># 1.0</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="余弦相似度-Cosine-Similarity"><a href="#余弦相似度-Cosine-Similarity" class="headerlink" title="余弦相似度(Cosine Similarity)"></a>余弦相似度(Cosine Similarity)</h2><p>余弦相似性通过测量两个向量的夹角的余弦值来度量它们之间的相似性。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cosine_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    d = np.dot(x, y) / (np.linalg.norm(x) * np.linalg.norm(y))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">cosine_distance(x, y)  <span class="comment"># 0.9649505047327671</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sklearn.metrics.pairwise <span class="keyword">import</span> cosine_similarity</span><br><span class="line">x, y = np.array(x), np.array(y)</span><br><span class="line">cosine_similarity(x.reshape(<span class="number">1</span>, -<span class="number">1</span>), y.reshape(<span class="number">1</span>, -<span class="number">1</span>))  <span class="comment"># array([[0.9649505]])</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="皮尔森相关系数-Pearson-Correlation-Coefficient"><a href="#皮尔森相关系数-Pearson-Correlation-Coefficient" class="headerlink" title="皮尔森相关系数(Pearson Correlation Coefficient)"></a>皮尔森相关系数(Pearson Correlation Coefficient)</h2><p>用于度量两个变量X和Y之间的相关程度，其值介于-1与1之间。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.stats <span class="keyword">import</span> pearsonr</span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">10</span>, <span class="number">9</span>, <span class="number">2.5</span>, <span class="number">6</span>, <span class="number">4</span>]</span><br><span class="line">coe, pv = pearsonr(x, y)  <span class="comment"># coe = -0.7426106572325057, pv = 0.1505558088534455</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="杰卡德相似系数-Jaccard-Similarity-Coefficient-及杰卡德距离-Jaccard-Distance"><a href="#杰卡德相似系数-Jaccard-Similarity-Coefficient-及杰卡德距离-Jaccard-Distance" class="headerlink" title="杰卡德相似系数(Jaccard Similarity Coefficient)及杰卡德距离(Jaccard Distance)"></a>杰卡德相似系数(Jaccard Similarity Coefficient)及杰卡德距离(Jaccard Distance)</h2><p>Jaccard 相似指数用来度量两个集合之间的相似性，它被定义为两个集合交集的元素个数除以并集的元素个数。</p>
+<p>Jaccard 距离用来度量两个集合之间的差异性，它是 Jaccard 的相似系数的补集，被定义为 1 减去 Jaccard 相似系数。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> jaccard</span><br><span class="line"></span><br><span class="line">x = np.array([<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>])</span><br><span class="line">y = np.array([<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>])</span><br><span class="line">jaccard(x, y)  <span class="comment"># 0.75</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>笔记</category>
+      </categories>
+      <tags>
+        <tag>Python3</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Instagram 的分片与 ID 设计</title>
+    <url>/2020/06/03/sharding-ids-at-instagram/</url>
+    <content><![CDATA[<!-- toc -->
+
+<p>Instagram上有大量的数据，每分钟就有超过25张的图片和90个点赞。为了确保所有重要的数据都能被合理存储并且及时得被提取应用，我们对数据进行了分片（sharding）——也就是说，我们把数据放到多个桶（bucket）中，每个桶里都有一部分数据。</p>
+<p>我们的应用服务器上运行的是Django， 后端数据库是PostgreSQL。对数据分片首先要决定是否要保留PostgreSQL作为主要的数据存储库，是否要采用其他的数据库。经过评估一些不同的数据库解决方案，我们最终确定最适合的方案是在PostgreSQL数据库集群上实现数据分片。</p>
+<p>然而在把数据写到数据库之前，我们还要解决如何给数据（例如Instagram上发布的没一张图片）加上唯一标识符的问题。在单一数据库上的典型解法——使用数据库自带的自增主键功能——在当数据需要被同时插入到多个数据库时就不适用了。文章的下面就来讲讲我们是如何解决这个问题的</p>
+<a id="more"></a>
+
+<p>开始前，我们先列出系统所需要的所有重要的功能。</p>
+<blockquote>
+<ol>
+<li>产生的数据ID需是可以按时间排序的。（比如对一列图片数据的ID进行排序，可以不需要提取太多图片本身的信息）</li>
+<li>理想的ID是64位的。（这样索引更小，存储也更优，像Redis）</li>
+<li>系统要尽量少的引用“可变动因素”——在很少工程师的情况下还可以扩张Instagram的很大一部分原因就是，我们相信简单易懂的方案。</li>
+</ol>
+</blockquote>
+<h2 id="现有的解决方案"><a href="#现有的解决方案" class="headerlink" title="现有的解决方案"></a>现有的解决方案</h2><h3 id="由Web应用层生成ID"><a href="#由Web应用层生成ID" class="headerlink" title="由Web应用层生成ID"></a>由Web应用层生成ID</h3><p>这种方案将ID的生成完全交到应用层，而不是数据库。例如，MongoDB的ObjectId，就是12字节长并且在最前面加上时间戳进行编码。另一个流行的方案是使用UUIDs。</p>
+<p>优点：</p>
+<blockquote>
+<ol>
+<li>每个应用线程独立生成ID，最小的降低ID生成的失败和竞争。</li>
+<li>如果用时间戳作为ID的起始部分，那么ID可以按时间排序。</li>
+</ol>
+</blockquote>
+<p>缺点：</p>
+<blockquote>
+<ol>
+<li>通常需要更多的存储空间（96位或者更多）来确保ID的合理唯一性。</li>
+<li>一些UUID类型完全是随机的，无法排序。</li>
+</ol>
+</blockquote>
+<h3 id="通过单独的服务产生ID"><a href="#通过单独的服务产生ID" class="headerlink" title="通过单独的服务产生ID"></a>通过单独的服务产生ID</h3><p>例如：Twitter的Snowflake，是一个Thrift服务，使用了Apache Zookeeper来协调各个结点并且产生64为的唯一ID。</p>
+<p>优点：</p>
+<blockquote>
+<ol>
+<li>Snowflake的ID只有64位，是UUID的一半。</li>
+<li>可以放时间戳到ID头，从而可以按时间排序。</li>
+<li>分布式系统保证了系统结点不会挂掉。</li>
+</ol>
+</blockquote>
+<p>缺点：</p>
+<blockquote>
+<p>增加了复杂性，而且引入了更多的“可变动因素”（如ZooKeeper, Snowflake服务器）到系统构架中。</p>
+</blockquote>
+<h3 id="数据库票据（DB-Ticket）服务器"><a href="#数据库票据（DB-Ticket）服务器" class="headerlink" title="数据库票据（DB Ticket）服务器"></a>数据库票据（DB Ticket）服务器</h3><p>利用数据库自带的自增特性来确保唯一性。Flicker采用这一方法，不过还用了两台ticket数据库（一个生成偶数，一个生成奇数）来避免单点失败。</p>
+<p>优点：</p>
+<blockquote>
+<p>数据库好理解，带有易预测的可扩张功能。</p>
+</blockquote>
+<p>缺点：</p>
+<blockquote>
+<ol>
+<li>最终会出现数据写入的瓶颈（尽管Flicker称在高扩展下没有问题）。</li>
+<li>需要管理多的两台服务器（或者EC2实例）。</li>
+<li>如果单独使用数据库，会出现单点失效。如果使用多个数据库，则不能保证ID可以按时间排序。</li>
+</ol>
+</blockquote>
+<p>在所有这些方案中，Twitter的snowflake是最接近的，但是生成ID所需的添加复杂性又和我们的目标冲突。我们的替换方案是采用概念上相近的方法，但是带到PostgreSQL内部实现。</p>
+<h2 id="Instagram-的方案"><a href="#Instagram-的方案" class="headerlink" title="Instagram 的方案"></a>Instagram 的方案</h2><p>我们的分片系统是由上千个“逻辑”分片组成的，由代码映射到少量的物理分片。</p>
+<p>通过这个方法，我们一开始用少数数据库实现，慢慢扩展到更多个数据库，只需要把部分逻辑分片从一台数据库转移到另一台数据库里，不需要重新把数据重新聚合。我们用到的PostgreSQL的schema的特性可以轻松的实现计划和管理。</p>
+<p>Schema（不要和SQL单个表的schema搞混了）是PostgreSQL里的一个逻辑分组功能。每一个PostgreSQL数据库都有好几个schema，每一个schema都有一到多个表。表名在没个schema中都是唯一的，而不是每个数据库，默认情况下，PostgreSQL会把所有数据都放在一个叫“public”的schema中。</p>
+<p>在我们的系统中每个“逻辑”分片都是一个PostgreSQL schema， 每个分片的表（比如照片的“点赞”功能）都存在每个schema中。</p>
+<p>我们通过使用PL/PGSQL, PostgreSQL内部的编程语言，和PostgreSQL现有的自增功能来生成ID。</p>
+<p>每个ID都由下面几个部分组成：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">41位的毫秒级时间（用于产生41年的ID）</span><br><span class="line">13位用来表示逻辑分片的ID</span><br><span class="line">10位的自增序列，模上1024， 意味着每个分片每毫秒可以产生1024个ID</span><br></pre></td></tr></table></figure>
+
+<p>下面通过一个例子说明：比如说现在是2011年的九月九日，我们的纪元是从2011年的一月一号开始。从新纪元开始到此有1387263000毫秒，那么我们把这个数字左移41位来填满ID的头。</p>
+<blockquote>
+<p>id = 1387263000 &lt;&lt;(64 – 41)</p>
+</blockquote>
+<p>接下来， 我们拿来我们准备把这个数据插入的分片ID；如果我们用户ID是31341， 这个分片的ID是 31341%2000 → 1341。 我们接下来把下面13为填满：</p>
+<blockquote>
+<p>id |= 1341 &lt;&lt; (64-41-13)</p>
+</blockquote>
+<p>最后， 我们用所剩的自增序列（每个schema中每个表中这个序列都是唯一的）来填满的后面的位数。 假设这张表中已经有了5000个ID； 我们下一个数据就是5001，我们把它模上1024得到：</p>
+<blockquote>
+<p>id |= （5001%1024）</p>
+</blockquote>
+<p>我们就得到了我们的ID， 我们把这个id作为insert中的RETURNING返回给应用层。</p>
+<p>下面是是实现以上过程的PL/PGSQL代码（这里用的schema是insta5）</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">FUNCTION</span> insta5.next_id(<span class="keyword">OUT</span> <span class="keyword">result</span> <span class="built_in">bigint</span>) <span class="keyword">AS</span> $$</span><br><span class="line"><span class="keyword">DECLARE</span></span><br><span class="line">    our_epoch <span class="built_in">bigint</span> := <span class="number">1314220021721</span>;</span><br><span class="line">    seq_id bigint;</span><br><span class="line">    now_millis bigint;</span><br><span class="line">    shard_id int := 5;</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">    <span class="keyword">SELECT</span> <span class="keyword">nextval</span>(<span class="string">&#x27;insta5.table_id_seq&#x27;</span>) %% <span class="number">1024</span> <span class="keyword">INTO</span> seq_id;</span><br><span class="line">    <span class="keyword">SELECT</span> <span class="keyword">FLOOR</span>(<span class="keyword">EXTRACT</span>(EPOCH <span class="keyword">FROM</span> clock_timestamp()) * <span class="number">1000</span>) <span class="keyword">INTO</span> now_millis;</span><br><span class="line">    result := (now_millis - our_epoch) &lt;&lt; 23;</span><br><span class="line">    result := result | (shard_id &lt;&lt; 10);</span><br><span class="line">    result := result | (seq_id);</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line">$$ LANGUAGE PLPGSQL;</span><br></pre></td></tr></table></figure>
+
+<p>要生成表示执行下面的部分：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> insta5.our_table(</span><br><span class="line">    <span class="string">&quot;id&quot;</span> <span class="built_in">bigint</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> insta5.next_id(),</span><br><span class="line">    ... rest <span class="keyword">of</span> <span class="keyword">table</span> <span class="keyword">schema</span> ...</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>成了！我们得到了应用中唯一的主键（还有一个好处是，ID中包含了分片ID可以用来轻松映射）。我们已经把这个方法用在产品中，并且对结果感到非常满意。</p>
+<p>本文来自：<a href="https://juejin.im/post/58de0676da2f60005fbec568">Instagram 的分片与 ID 设计</a></p>
+]]></content>
+      <categories>
+        <category>笔记</category>
+      </categories>
+      <tags>
+        <tag>Algorithm</tag>
       </tags>
   </entry>
   <entry>
