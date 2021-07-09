@@ -21,7 +21,7 @@
 
   <!-- 页面元数据 -->
   
-  <title>归档：2021/6 - 听听那冷雨</title>
+  <title>归档：2021/7 - 听听那冷雨</title>
   
 
   
@@ -311,8 +311,6 @@
         
           
         
-          
-        
       
     
     
@@ -326,29 +324,21 @@
   
     
     <h2 class="article-title" >
-      <a href="/2021/06/18/interview-python/">
-        关于 Python 的一些面试题
+      <a href="/2021/07/09/understand-python-metaclass/">
+        理解 Python 的元类
       </a>
     </h2>
   
   <div class='md'>
     
-      
-        Python 语言特性1 Python的函数参数传递看两个例子:
-12345a = 1def fun(a):    a = 2fun(a)print a  # 1
-
-12345a = []def fun(a):    a.append(1)fun(a)print a  # [1]
-
-所有的变量都可以理解是内存中一个对象的“引用”，或者，也可以看似c中void*的感觉。
-通过id来看引用a的内...
-      
+      <p>元类是一个深奥的OOP概念，几乎隐藏在所有Python代码之后。无论您是否知道，都在使用它们。在大多数情况下，您无需意识到这一点。大多数Python程序员很少（即使有的话）也不必考虑元类。</p>
     
   </div>
   
     <div class='meta-v3' line_style='solid'>
       <div>
         
-        <time>2021-06-18</time>
+        <time>2021-07-09</time>
         
           <span class="dot"></span>
           <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
@@ -356,7 +346,7 @@
       </div>
       
         <div>
-          <a class='readmore' href='/2021/06/18/interview-python/'>
+          <a class='readmore' href='/2021/07/09/understand-python-metaclass/'>
             阅读全文
           </a>
         </div>
@@ -378,24 +368,21 @@
   
     
     <h2 class="article-title" >
-      <a href="/2021/06/10/similarity-measures-in-python/">
-        数据科学中的各种相似性度量及其实现
+      <a href="/2021/07/09/understand-python-decorator/">
+        理解 Python 的装饰器
       </a>
     </h2>
   
   <div class='md'>
     
-      <!-- toc -->
-
-<h2 id="欧氏距离-Euclidean-Distance"><a href="#欧氏距离-Euclidean-Distance" class="headerlink" title="欧氏距离(Euclidean Distance)"></a>欧氏距离(Euclidean Distance)</h2><p>欧氏距离（也称欧几里得度量）指在 m 维空间中两个点之间的真实距离，或者向量的自然长度（即该点到原点的距离）。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">euclidean_distance</span>(<span class="params">x, y</span>):</span></span><br><span class="line">    <span class="comment"># 方法一</span></span><br><span class="line">    <span class="comment"># d = sqrt(sum(pow(a - b, 2) for a, b in zip(x, y)))</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方法二</span></span><br><span class="line">    x, y = np.array(x), np.array(y)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># d = np.linalg.norm(x - y, ord=2)</span></span><br><span class="line"></span><br><span class="line">    d = np.sqrt(np.<span class="built_in">sum</span>(np.square(x - y)))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> d</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">y = [<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>]</span><br><span class="line">euclidean_distance(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> scipy.spatial.distance <span class="keyword">import</span> euclidean</span><br><span class="line">euclidean(x, y)  <span class="comment"># 11.180339887498949</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      <p>装饰器本质上是一个Python函数，它可以让其他函数在不需要做任何代码变动的前提下增加额外功能，装饰器的返回值也是一个函数对象。它经常用于有切面需求的场景，比如：插入日志、性能测试、事务处理、缓存、权限校验等场景。装饰器是解决这类问题的绝佳设计，有了装饰器，我们就可以抽离出大量与函数功能本身无关的雷同代码并继续重用。概括的讲，装饰器的作用就是为已经存在的对象添加额外的功能。</p>
     
   </div>
   
     <div class='meta-v3' line_style='solid'>
       <div>
         
-        <time>2021-06-10</time>
+        <time>2021-07-09</time>
         
           <span class="dot"></span>
           <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
@@ -403,53 +390,7 @@
       </div>
       
         <div>
-          <a class='readmore' href='/2021/06/10/similarity-measures-in-python/'>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-  
-
-</div>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2021/06/08/log-anomaly-detection/">
-        基于 LSTM 深度学习模型的日志异常检测
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <!-- toc -->
-
-<h2 id="日志模式识别"><a href="#日志模式识别" class="headerlink" title="日志模式识别"></a>日志模式识别</h2><h3 id="日志样例"><a href="#日志样例" class="headerlink" title="日志样例"></a>日志样例</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">2021-03-11 09:23:17,195 [OCKey:HlTOgWeM-LYFkTMn2wsXcEd] DEBUG com.dawninfotek.base.security.WebAppSafeGuard - BaseWebAppSafeGuard.class::key = beneAcctNo4 value = 1</span><br><span class="line">2021-03-11 09:23:17,849 [OCKey:zQXeCzqsWdY9_GliHIoAIpI] DEBUG com.dawninfotek.base.action.BaseDispatchAction - com.dawninfotek.easybanking.web.pr.olbfinance.polbfinancemyfinancenew.POLBFinanceMyFinanceAction::Base BaseDispatchAction - link6::37003747</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::Getting a connection from dataSource</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.base.dac.ConnectionFactory - java.lang.Class::got connection com.ibm.ws.rsadapter.jdbc.WSJdbcConnection@3bfa1e18 from dataSource: auto Commit = false</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Connection</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.Connection - &#123;conn-12085845&#125; Preparing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,635 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Executing Statement:          select count(T.CUSTNO) from PERCRMPRODUCTDUEDATE t where t.CUSTNO=? and t.READFLAG = &#x27;0&#x27;</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Parameters: [42300205]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG java.sql.PreparedStatement - &#123;pstm-12085846&#125; Types: [java.lang.String]</span><br><span class="line">2021-03-11 09:23:18,636 [OCKey:cSrKSPklI9-juH5TB1VdT6N] DEBUG com.dawninfotek.easybanking.base.process.EasyBankingProcessManager - com.dawninfotek.easybanking.base.process.EasyBankingProcessManager::Start to commit transaction for DAC:EasyBankingSample</span><br></pre></td></tr></table></figure>
-    
-  </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
-        
-        <time>2021-06-08</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/%E7%AC%94%E8%AE%B0/">笔记</a>
-        
-      </div>
-      
-        <div>
-          <a class='readmore' href='/2021/06/08/log-anomaly-detection/'>
+          <a class='readmore' href='/2021/07/09/understand-python-decorator/'>
             阅读全文
           </a>
         </div>
