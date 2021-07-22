@@ -379,9 +379,9 @@
 
 <h2 id="安装系统相关依赖"><a href="#安装系统相关依赖" class="headerlink" title="安装系统相关依赖"></a>安装系统相关依赖</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-static openssl-devel xz xz-devel libffi-devel findutils gcc wget</span><br></pre></td></tr></table></figure>
 
-<h2 id="下载-python3-包"><a href="#下载-python3-包" class="headerlink" title="下载 python3 包"></a>下载 python3 包</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://www.python.org/ftp/python/3.6.9/Python-3.6.10.tgz</span><br></pre></td></tr></table></figure>
+<h2 id="下载-python3-包"><a href="#下载-python3-包" class="headerlink" title="下载 python3 包"></a>下载 python3 包</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz</span><br></pre></td></tr></table></figure>
 
-<h2 id="解压到当前目录"><a href="#解压到当前目录" class="headerlink" title="解压到当前目录"></a>解压到当前目录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf Python-3.6.10.tgz</span><br></pre></td></tr></table></figure>
+<h2 id="解压到当前目录"><a href="#解压到当前目录" class="headerlink" title="解压到当前目录"></a>解压到当前目录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf Python-3.9.6.tgz</span><br></pre></td></tr></table></figure>
 
 <h2 id="进入生成的目录进行配置"><a href="#进入生成的目录进行配置" class="headerlink" title="进入生成的目录进行配置"></a>进入生成的目录进行配置</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/python3 --enable-loadable-sqlite-extensions --enable-optimizations</span><br></pre></td></tr></table></figure>
 
@@ -393,13 +393,13 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum search python3 | grep devel</span><br></pre></td></tr></table></figure>
 
 <p>一键更新 <code>python</code> 包</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip list --outdated --format=freeze | grep -v <span class="string">&#x27;^\-e&#x27;</span> | cut -d = -f 1  | xargs -n1 pip install -U</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m pip list --outdated --format=freeze | grep -v <span class="string">&#x27;^\-e&#x27;</span> | cut -d = -f 1  | xargs -n1 pip install -U</span><br></pre></td></tr></table></figure>
 
 <p>切换豆瓣源</p>
 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 编辑 .pip/pip.conf 添加如下内容</span><br><span class="line"></span><br><span class="line">[global]</span><br><span class="line">index-url = https://pypi.douban.com/simple</span><br><span class="line">trusted-host = pypi.douban.com</span><br><span class="line"></span><br><span class="line">[list]</span><br><span class="line">format = columns</span><br></pre></td></tr></table></figure>
 
 <p>离线安装python包</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 离线安装，指定寻找包的目录为 packages</span></span><br><span class="line">python3 -m pip install --no-index --find-links=packages -r requirements.txt</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 首先离线下载依赖包，比如 `tensorflow-cpu`，同时会下载所有的依赖项</span></span><br><span class="line">python3 -m pip download -d packages tensorflow-cpu</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载和目标机器对应架构的依赖包</span></span><br><span class="line"><span class="comment"># https://pip.pypa.io/en/stable/cli/pip_download/</span></span><br><span class="line">python3 -m pip download \</span><br><span class="line">    --only-binary=:all: \</span><br><span class="line">    --platform manylinux1_x86_64 --platform linux_x86_64 --platform any \</span><br><span class="line">    --python-version 36 \</span><br><span class="line">    --implementation cp \</span><br><span class="line">    --abi cp36m --abi cp36 --abi abi3 --abi none \</span><br><span class="line">    tensorflow-cpu</span><br><span class="line"></span><br><span class="line"><span class="comment"># 离线安装，指定寻找包的目录为 packages</span></span><br><span class="line">python3 -m pip install --no-index --find-links=packages -r requirements.txt</span><br></pre></td></tr></table></figure>
 
   
   
@@ -434,10 +434,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-05-29T17:08:04+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-07-22T19:45:54+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：2020年5月29日</p>
+    <p>更新于：2021年7月22日</p>
   </a>
 </div>
 
