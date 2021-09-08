@@ -377,7 +377,7 @@
 
 <!-- toc -->
 
-<h2 id="安装系统相关依赖"><a href="#安装系统相关依赖" class="headerlink" title="安装系统相关依赖"></a>安装系统相关依赖</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-static openssl-devel xz xz-devel libffi-devel findutils gcc wget</span><br></pre></td></tr></table></figure>
+<h2 id="安装系统相关依赖"><a href="#安装系统相关依赖" class="headerlink" title="安装系统相关依赖"></a>安装系统相关依赖</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># https://github.com/pyenv/pyenv/wiki#suggested-build-environment</span></span><br><span class="line">yum install -y zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-static openssl-devel xz xz-devel libffi-devel findutils gcc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装终端会话管理工具以便编译时喝茶</span></span><br><span class="line">yum install -y screen tmux</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装mysqlclient驱动所需的依赖</span></span><br><span class="line">yum install -y mysql-devel</span><br><span class="line"></span><br><span class="line"><span class="comment"># 遇到mysql_config问题</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/<span class="built_in">local</span>/mysql/bin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 遇到动态链接库问题</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=/usr/<span class="built_in">local</span>/mysql/lib</span><br><span class="line"></span><br><span class="line"><span class="comment"># 遇gcc编译错误(ld:cannot found -lc)</span></span><br><span class="line">yum install -y glibc-devel</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <h2 id="下载-python3-包"><a href="#下载-python3-包" class="headerlink" title="下载 python3 包"></a>下载 python3 包</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz</span><br></pre></td></tr></table></figure>
 
@@ -434,10 +434,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-07-22T19:45:54+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-09-08T09:38:52+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：2021年7月22日</p>
+    <p>更新于：2021年9月8日</p>
   </a>
 </div>
 
